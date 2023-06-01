@@ -34,7 +34,7 @@ public enum DecodeState
 public record DecodedBasicSimpleSetSketcher ( DecodeState state, IList<int> Data);
 public class BasicSimpleSetSketcher { 
     int[] data;
-    IHashFunc hashFunc = new Md5Simple();
+    ISketchHashFunction hashFunc = new Md5Simple();
     public BasicSimpleSetSketcher(uint size)
     {
         data = new int[size];
@@ -154,12 +154,17 @@ public class BasicSimpleSetSketcher {
     }
 }
 
-interface IHashFunc
+interface ISketchHashFunction
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
     (uint, uint, uint) GetHash(int x);
 }
 
-class Md5Simple :IHashFunc
+class Md5Simple :ISketchHashFunction
 {
     MD5 md5;
     public Md5Simple()
