@@ -33,28 +33,29 @@ public enum DecodeState
 }
 public record DecodedBasicSimpleSetSketcher ( DecodeState state, IList<int> Data);
 public class BasicSimpleSetSketcher { 
-    int[] data;
-    ISketchHashFunction hashFunc = new Md5Simple();
+    int[] _data;
+    ISketchHashFunction _hashFunc = new Md5Simple();
+    int _shotDownMultiplicator = 10; //Sets maximum number of rounds in Decode
     public BasicSimpleSetSketcher(uint size)
     {
-        data = new int[size];
+        _data = new int[size];
     }
     public int[] GetData()
     {
-        return data;
+        return _data;
     }
 
     private (uint, uint, uint) GetTruncatedHash(int index)
     {
-        var hash = hashFunc.GetHash(index);
-        return ((uint) (hash.Item1 % data.Length), (uint) (hash.Item2 % data.Length), (uint) (hash.Item3 % data.Length));
+        var hash = _hashFunc.GetHash(index);
+        return ((uint) (hash.Item1 % _data.Length), (uint) (hash.Item2 % _data.Length), (uint) (hash.Item3 % _data.Length));
     }
     public void Merge(BasicSimpleSetSketcher other)
     {
-        for (int i = 0; i < data.Length; i++)
+        for (int i = 0; i < _data.Length; i++)
         {
             var otherData = other.GetData();
-            data[i] ^= otherData[i];
+            _data[i] ^= otherData[i];
         }
     }
     public bool LooksPure(uint index, int[] data)
@@ -80,7 +81,7 @@ public class BasicSimpleSetSketcher {
         HashSet<int>ansver = new HashSet<int>();
         HashSet<uint> pure = new HashSet<uint>();
         //Copydata allow Decode to be non destructive
-        int[] copydata = (int[]) this.data.Clone();
+        int[] copydata = (int[]) this._data.Clone();
         for (uint i = 0; i < copydata.Length; i++)
         {
             if (LooksPure(i, copydata))
@@ -88,7 +89,7 @@ public class BasicSimpleSetSketcher {
                 pure.Add(i);
             }
         }
-        int hardStop = copydata.Length * 100; //Tohle je nějaká random konstatnta, aby se to necyklilo
+        int hardStop = copydata.Length * _shotDownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
         int rounds = 0;
         while (pure.Count > 0)
         {
@@ -151,7 +152,7 @@ public class BasicSimpleSetSketcher {
     }
     public void Toogle(int x)
     {
-        Toogle(x, data);
+        Toogle(x, _data);
     }
 }
 
