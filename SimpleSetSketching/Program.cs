@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
 
+#nullable enable
 public class Program {
     public static void Main(string[] args) 
     {
@@ -23,6 +24,14 @@ public class Program {
 
     }
 }
+
+public enum DecodeState
+{
+    ok,
+    notDecodedCorrectly,
+    shotDown,
+}
+public record DecodedBasicSimpleSetSketcher ( DecodeState state, IList<int> Data);
 public class BasicSimpleSetSketcher { 
     int[] data;
     IHashFunc hashFunc = new Md5Simple();
@@ -53,9 +62,9 @@ public class BasicSimpleSetSketcher {
         var hash = GetTruncatedHash(data[index]);
         return ((data[index] != 0))&& (hash.Item1 == index || hash.Item2 == index || hash.Item3 == index);
     }
-    public IList<int> Decode()
+    public DecodedBasicSimpleSetSketcher Decode()
     {
-        IList<int> ansver;
+        DecodedBasicSimpleSetSketcher ansver;
         if (TryDecode(out ansver))
         {
             return ansver;
@@ -65,7 +74,7 @@ public class BasicSimpleSetSketcher {
             throw new Exception($"It was not possible to decode {this}");
         }
     }
-    public bool TryDecode(out IList<int> ansverOut)
+    public bool TryDecode(out DecodedBasicSimpleSetSketcher decodedAnsver)
     {
         HashSet<int>ansver = new HashSet<int>();
         HashSet<uint> pure = new HashSet<uint>();
@@ -85,7 +94,7 @@ public class BasicSimpleSetSketcher {
             rounds++;
             if (rounds > hardStop)
             {
-                ansverOut = new List<int>();
+                decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.shotDown, new List<int>());
                 return false;
             }
             HashSet<uint> nextPure = new HashSet<uint>();
@@ -120,8 +129,12 @@ public class BasicSimpleSetSketcher {
             pure = nextPure;
         }
         
-        if(!copydata.All(x => x== 0)) { ansverOut = new List<int>(); return false; };
-        ansverOut = ansver.ToList();
+        if(!copydata.All(x => x== 0))
+        { 
+            decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.notDecodedCorrectly, new List<int>());
+            return false;
+        };
+        decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.ok, ansver.ToList());
         return true;
     }
     private void Toogle(int x, int[] data)
@@ -155,7 +168,6 @@ class Md5Simple :IHashFunc
     }
     public (uint, uint, uint) GetHash(int number)
     {
-
         var hash = md5.ComputeHash(BitConverter.GetBytes(number));
         return (BitConverter.ToUInt32(hash, 0), BitConverter.ToUInt32(hash, 4), BitConverter.ToUInt32(hash, 8));
     }
@@ -211,7 +223,7 @@ public class ComplexTests
             ketcher.Toogle(i);
         }
         //If fails write a error message 
-        IList<int> ansver;
+        DecodedBasicSimpleSetSketcher ansver;
         watch.Restart();
         Console.WriteLine("DecodingStarted");
         bool success = ketcher.TryDecode(out ansver);
@@ -219,7 +231,7 @@ public class ComplexTests
 
         if (success)
         {
-            other.SymmetricExceptWith(ansver);
+            other.SymmetricExceptWith(ansver.Data);
             if (other.Count != 0)
             {
                 success = false;

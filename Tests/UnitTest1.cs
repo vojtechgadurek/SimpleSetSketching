@@ -11,8 +11,8 @@ namespace Tests
             var ketcher = new BasicSimpleSetSketcher(16);
             ketcher.Toogle(1);
             var ansver = ketcher.Decode();
-            Assert.Equal(1, ansver.Count);
-            Assert.Contains(1, ansver);
+            Assert.Equal(1, ansver.Data.Count);
+            Assert.Contains(1, ansver.Data);
         }
         [Theory]
         [InlineData(4)]
@@ -30,8 +30,8 @@ namespace Tests
                 ketcher.Toogle(i);
             }
             var ansver = ketcher.Decode();
-            Assert.Contains(1, ansver);
-            Assert.Contains(10, ansver);
+            Assert.Contains(1, ansver.Data);
+            Assert.Contains(10, ansver.Data);
         }
     }
     public class ComplexTests
@@ -92,7 +92,7 @@ namespace Tests
             var ansver = ketcher.Decode();
             foreach (var i in other)
             {
-                Assert.Contains(i, ansver);
+                Assert.Contains(i, ansver.Data);
             } 
         }
     }
