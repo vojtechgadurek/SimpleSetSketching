@@ -71,6 +71,7 @@ public class BasicSimpleSetSketcher {
         }
         else
         {
+            //There should be some better exception
             throw new Exception($"It was not possible to decode {this}");
         }
     }
@@ -157,7 +158,7 @@ public class BasicSimpleSetSketcher {
 interface ISketchHashFunction
 {
     /// <summary>
-    /// 
+    /// Expect a int to be hashed, returns 3 independant hashes
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
@@ -171,8 +172,10 @@ class Md5Simple :ISketchHashFunction
     {
         md5 = MD5.Create();
     }
+
     public (uint, uint, uint) GetHash(int number)
     {
+        //I do there hashing for the price of one
         var hash = md5.ComputeHash(BitConverter.GetBytes(number));
         return (BitConverter.ToUInt32(hash, 0), BitConverter.ToUInt32(hash, 4), BitConverter.ToUInt32(hash, 8));
     }
