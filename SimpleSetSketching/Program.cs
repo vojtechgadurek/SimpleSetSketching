@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.Dynamic;
@@ -11,31 +13,38 @@ using System.Security.Cryptography;
 public class Program {
     public static void Main(string[] args) 
     {
-        var complexTest = new ComplexTests();
-        int count = 0;
-        for (int i = 0; i < 100; i++)
+        ComplexTests complexTests = new ComplexTests();
+        var Clock = System.Diagnostics.Stopwatch.StartNew();
+        var ansver = complexTests.TestMultipleMultiplicator(10, 20, 0.01, 1.15, 10000, 10000, 42, true);
+        foreach (var item in ansver)
         {
-            if (complexTest.TestRandomData(3000, 250 , 512, i))
+            var statesGrouped = item.data.GroupBy(x => x.state);
+            Console.Write($"{item.sizeOfSketchMultiplicator} ");
+            foreach(var state in statesGrouped)
             {
-                count++;
+                Console.Write($"{state.Key} {state.Count()} ");
             }
+            Console.Write($"time {item.data.Sum(x => x.timeTaken)/ item.data.Count}");
+            Console.WriteLine();
         }
-        Console.WriteLine($"Success rate: {count}");
-
+        Console.WriteLine($"Total time spent computinng {ansver.Sum(x => x.data.Sum(y => y.timeTaken))}");
+        Console.WriteLine($"Total time spent shotdown {ansver.Sum(x => x.data.Where(z => z.state == ComplexTests.DecodingState.shotDown).Sum(y => y.timeTaken))}");
+        Console.WriteLine($"Total time {Clock.ElapsedMilliseconds}");
+        
     }
 }
 
 public enum DecodeState
 {
     ok,
-    notDecodedCorrectly,
+    notAbleToDecode,
     shotDown,
 }
-public record DecodedBasicSimpleSetSketcher ( DecodeState state, IList<int> Data);
+public record DecodedBasicSimpleSetSketcherToken ( DecodeState state, IList<int> Data);
 public class BasicSimpleSetSketcher { 
     int[] _data;
     ISketchHashFunction _hashFunc = new Md5Simple();
-    int _shotDownMultiplicator = 10; //Sets maximum number of rounds in Decode
+    int _shotDownMultiplicator = 10; //Sets maximum number of decoding rounds to prevent infinite loop
     public BasicSimpleSetSketcher(uint size)
     {
         _data = new int[size];
@@ -63,9 +72,9 @@ public class BasicSimpleSetSketcher {
         var hash = GetTruncatedHash(data[index]);
         return ((data[index] != 0))&& (hash.Item1 == index || hash.Item2 == index || hash.Item3 == index);
     }
-    public DecodedBasicSimpleSetSketcher Decode()
+    public DecodedBasicSimpleSetSketcherToken Decode()
     {
-        DecodedBasicSimpleSetSketcher ansver;
+        DecodedBasicSimpleSetSketcherToken ansver;
         if (TryDecode(out ansver))
         {
             return ansver;
@@ -76,7 +85,7 @@ public class BasicSimpleSetSketcher {
             throw new Exception($"It was not possible to decode {this}");
         }
     }
-    public bool TryDecode(out DecodedBasicSimpleSetSketcher decodedAnsver)
+    public bool TryDecode(out DecodedBasicSimpleSetSketcherToken decodedAnsver)
     {
         HashSet<int>ansver = new HashSet<int>();
         HashSet<uint> pure = new HashSet<uint>();
@@ -96,7 +105,7 @@ public class BasicSimpleSetSketcher {
             rounds++;
             if (rounds > hardStop)
             {
-                decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.shotDown, new List<int>());
+                decodedAnsver = new DecodedBasicSimpleSetSketcherToken(DecodeState.shotDown, new List<int>());
                 return false;
             }
             HashSet<uint> nextPure = new HashSet<uint>();
@@ -133,10 +142,10 @@ public class BasicSimpleSetSketcher {
         
         if(!copydata.All(x => x== 0))
         { 
-            decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.notDecodedCorrectly, new List<int>());
+            decodedAnsver = new DecodedBasicSimpleSetSketcherToken(DecodeState.notAbleToDecode, new List<int>());
             return false;
         };
-        decodedAnsver = new DecodedBasicSimpleSetSketcher(DecodeState.ok, ansver.ToList());
+        decodedAnsver = new DecodedBasicSimpleSetSketcherToken(DecodeState.ok, ansver.ToList());
         return true;
     }
     private void Toogle(int x, int[] data)
@@ -184,69 +193,141 @@ class Md5Simple :ISketchHashFunction
 
 public class ComplexTests
 {
-    public bool TestRandomData(uint size, uint different, uint sizeofsketch, int seed)
+    /// <summary>
+    ///  Generate triplet, first two being two list containg numbers, last being their symetric difference
+    /// </summary>
+    /// <param name="numberOfSameElements"></param>
+    /// How much elements should be in both sets
+    /// <param name="numberOfDifferentElements"></param>
+    /// Size of symetric difference of the two sets
+    /// <param name="seed"></param>
+    /// <returns></returns>
+    (IList<int>, IList<int>, HashSet<int>) GenerateRandomSymetricDifferenceData(uint numberOfSameElements, uint numberOfDifferentElements, int seed )
     {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         Random random = new Random(seed);
+        //Create two sets one containg elements to be in both sets, one containing elements to be in only one set
 
-        (IList<int>, IList<int>, HashSet<int>) GenerateData(uint size, uint different)
+        //Create same elements set
+        HashSet<int> bothSetsElements = new HashSet<int>();
+        while (bothSetsElements.Count < numberOfSameElements)
         {
-            HashSet<int> same = new HashSet<int>();
-            while (same.Count < size)
-            {
-                same.Add(random.Next());
-            }
-            HashSet<int> other = new HashSet<int>();
-            while (other.Count < different)
-            {
-                if (!same.Contains(random.Next()))
-                {
-                    other.Add(random.Next());
-                }
-            }
-            HashSet<int> samecopy = new HashSet<int>(same);
-            foreach (var i in other)
-            {
-                if (random.Next(2) == 0)
-                { samecopy.Add(i); }
-                else
-                {
-                    same.Add(i);
-                }
-
-            }
-            return (same.OrderBy(x => random.Next()).ToList(), samecopy.OrderBy(x => random.Next()).ToList(), other);
-
-
+            bothSetsElements.Add(random.Next());
         }
-        var (same, samecopy, other) = GenerateData(size, different);
 
-        Console.WriteLine($"Build data ended in {watch.Elapsed} ms");
-        var ketcher = new BasicSimpleSetSketcher(sizeofsketch);
-        foreach (var i in same)
+        //Create other elements set
+        HashSet<int> onlyOneSetElements = new HashSet<int>();
+        while (onlyOneSetElements.Count < numberOfDifferentElements)
         {
-            ketcher.Toogle(i);
-        }
-        foreach (var i in samecopy)
-        {
-            ketcher.Toogle(i);
-        }
-        //If fails write a error message 
-        DecodedBasicSimpleSetSketcher ansver;
-        watch.Restart();
-        Console.WriteLine("DecodingStarted");
-        bool success = ketcher.TryDecode(out ansver);
-        Console.WriteLine("DecodingTook" + watch.Elapsed + " ms");
-
-        if (success)
-        {
-            other.SymmetricExceptWith(ansver.Data);
-            if (other.Count != 0)
+            if (!bothSetsElements.Contains(random.Next()))
             {
-                success = false;
+                onlyOneSetElements.Add(random.Next());
             }
         }
-        Console.WriteLine($"Test {size}, {different}, {sizeofsketch}, {seed}, was succesful {success}");
-        return success;
+
+        //Create sets for symetrical difference
+        HashSet<int> firstSet = new HashSet<int>(bothSetsElements);
+        HashSet<int> secondSet = new HashSet<int>(bothSetsElements);
+
+        //Splits elements to be in only one set between the two sets
+        foreach (var i in onlyOneSetElements)
+        {
+            if (random.Next(2) == 0)
+            { secondSet.Add(i); }
+            else
+            {
+                firstSet.Add(i);
+            }
+
+        }
+
+        var firstShuffled = firstSet.OrderBy(x => random.Next()).ToList();
+        var secondShuffled = secondSet.OrderBy(x => random.Next()).ToList();
+        return (firstShuffled, secondShuffled, onlyOneSetElements);
     }
+    public void RunTests(uint size)
+    {
+
+    }
+
+    public enum DecodingState
+    {
+        ok,
+        shotDown,
+        notAbleToDecode,
+        badDecoding
+    }
+    public record struct DecondingToken (long timeTaken, DecodingState state);
+
+
+    DecondingToken RunOneTest(uint numberOfSameElements, uint numberOfDifferentElements, int seed, uint sizeofsketch)
+    {
+        var (firstSet, secondSet, symetricDifference) = GenerateRandomSymetricDifferenceData(numberOfSameElements, numberOfDifferentElements, seed);
+        var sketcher = new BasicSimpleSetSketcher(sizeofsketch);
+        foreach (var i in firstSet)
+        {
+            sketcher.Toogle(i);
+        }
+        foreach (var i in secondSet)
+        {
+            sketcher.Toogle(i);
+        }
+        
+        DecodedBasicSimpleSetSketcherToken decodedDataToken;
+
+        //Test decoding
+
+        var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+        sketcher.TryDecode(out decodedDataToken);
+        stopWatch.Stop();
+        var elapsedMs = stopWatch.ElapsedMilliseconds;
+
+        //Test if decoding was correct, state is ok and all elements are in symetric difference
+        if (decodedDataToken.state == DecodeState.ok &&
+            (!decodedDataToken.Data.All(x => symetricDifference.Contains(x) 
+            || !(decodedDataToken.Data.Count == symetricDifference.Count)))
+            )
+        {
+            return new DecondingToken(elapsedMs, DecodingState.badDecoding);
+        }
+        
+        switch (decodedDataToken.state)
+        {
+            case DecodeState.ok:
+                return new DecondingToken(elapsedMs, DecodingState.ok);
+            case DecodeState.shotDown:
+                return new DecondingToken(elapsedMs, DecodingState.shotDown);
+            case DecodeState.notAbleToDecode:
+                return new DecondingToken(elapsedMs, DecodingState.notAbleToDecode);
+            default:
+                throw new Exception("Unknown decoding state");
+        }
+    }
+
+    public record class TestResult(double sizeOfSketchMultiplicator, List<DecondingToken> data);
+    public TestResult RunTests(int numberOfRounds, uint numberOfSameElements, uint numberOfDifferentElements, int seed, double sizeOfSketchMultiplicator)
+    {
+        uint sizofsketch = (uint)(sizeOfSketchMultiplicator * (numberOfDifferentElements));
+        List<DecondingToken> ansver = new List<DecondingToken>();
+        for (int i = 0; i < numberOfRounds; i++)
+        {
+            ansver.Add(RunOneTest(numberOfSameElements, numberOfDifferentElements, seed + i, sizofsketch));
+        }
+        return new TestResult(sizeOfSketchMultiplicator, ansver);
+    }
+
+    public IList<TestResult> TestMultipleMultiplicator(int numberOfRounds,int numberOfTests, double  stepSize, double StartMultiplicator, uint numberOfSameElements, uint numberOfDifferentElements, int seed, bool vocal)
+    {
+        IList<TestResult> ansver = new List<TestResult>();
+        for (int i = 0; i < numberOfTests; i++)
+        {
+            if (vocal)
+            {
+                Console.WriteLine("Test number " + i + " out of " + numberOfTests);
+            }
+            ansver.Add(RunTests(numberOfRounds, numberOfSameElements, numberOfDifferentElements, seed + i*numberOfTests, StartMultiplicator + i * stepSize));
+        }
+        return ansver;
+
+    }
+    
 }
