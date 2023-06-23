@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Diagnostics.Metrics;
@@ -15,7 +17,7 @@ public class Program {
     {
         ComplexTests complexTests = new ComplexTests();
         var Clock = System.Diagnostics.Stopwatch.StartNew();
-        var ansver = complexTests.TestMultipleMultiplicator(10, 20, 0.01, 1.15, 10000, 10000, 42, true);
+        var ansver = complexTests.TestMultipleMultiplicator(1000, 1, 0, 1.3, 10000, 1000, 42, true);
         foreach (var item in ansver)
         {
             var statesGrouped = item.data.GroupBy(x => x.state);
@@ -165,6 +167,97 @@ public class BasicSimpleSetSketcher {
     }
 }
 
+
+class ReverseBloomFilter
+{
+    record struct RBFCell(int count, uint keySum, int valueSum);
+    RBFCell[] data;
+    List<Func<uint, uint>> hashfuncs;
+
+    public uint GetHashIndex(Func<uint, uint> hashFunc, uint index)
+    {
+        return (uint) (hashFunc(index) % data.Length);
+    }
+    public void InsertByOneHashFunc(Func<uint, uint> hashFunc, uint index, int value)
+    {
+
+        uint tableIndex = GetHashIndex(hashFunc, index);
+        RBFCell originalCell = data[tableIndex];
+        data[tableIndex] = new RBFCell(originalCell.count + 1, 
+                originalCell.keySum + index, 
+                originalCell.valueSum + value);
+    }
+    public void Insert(uint index, int value)
+    {
+        hashfuncs.ForEach(hashFunc => InsertByOneHashFunc(hashFunc, index, value));
+    }
+
+    public void DeleteByOneHashFunc(Func<uint, uint> hashFunc, uint index, int value)
+    {
+        uint tableIndex = GetHashIndex(hashFunc, index);
+        RBFCell originalCell = data[tableIndex];
+        data[tableIndex] = new RBFCell(originalCell.count - 1,
+                           originalCell.keySum - index,
+                                          originalCell.valueSum - value);
+    }
+    public void Delete(uint index, int value)
+    {
+        hashfuncs.ForEach(hashFunc => DeleteByOneHashFunc(hashFunc, index, value));
+    }
+
+    public int? Get(uint index)
+    {
+        foreach(var func in hashfuncs)
+        {
+            uint tableIndex = GetHashIndex(func, index);
+            RBFCell cell = data[tableIndex];
+            if (cell.count == 0)
+            {
+                return null;
+            }
+            else if (cell.count == 1)
+            {
+                if (cell.keySum == index)
+                {
+                    return cell.valueSum;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+        throw new NotImplementedException();
+    }
+    public IList<(uint, int)> ListEntries()
+    {
+        List<(uint, int)> ansver = new List<(uint, int)>();
+        List<uint> ones = new List<uint>();
+        for (uint i = 0; i < data.Length; i++)
+            if (data[i].count == 1)
+            {
+                ones.Add(i);
+            }
+
+        while (ones.Count > 0) {
+            var cell = data[ones[ones.Count - 1]];
+            if (cell.count == 1)
+            {
+                ansver.Add(new (cell.keySum, cell.valueSum));
+                ones.RemoveAt(ones.Count - 1);
+                Delete(cell.keySum, cell.valueSum);
+                //If any deletion lead to count 0, we add them to ones
+                //This is more expensive than should be as hashing function is called twice
+                hashfuncs.ForEach(hashFunc => {
+                    if (hashFunc(cell.keySum) == 1)  { ones.Add(GetHashIndex(hashFunc, cell.keySum)); } }
+                );
+            }
+
+        }
+        return ansver;
+    }
+
+}
 interface ISketchHashFunction
 {
     /// <summary>
@@ -177,6 +270,7 @@ interface ISketchHashFunction
 
 class Md5Simple :ISketchHashFunction
 {
+    
     MD5 md5;
     public Md5Simple()
     {
@@ -188,6 +282,29 @@ class Md5Simple :ISketchHashFunction
         //I do there hashing for the price of one
         var hash = md5.ComputeHash(BitConverter.GetBytes(number));
         return (BitConverter.ToUInt32(hash, 0), BitConverter.ToUInt32(hash, 4), BitConverter.ToUInt32(hash, 8));
+    }
+}
+
+public interface HashFunction
+{
+    int GetHash(int x);
+}
+
+public class Md5Hash
+{
+    MD5 md5;
+    uint seed;
+    public Md5Hash(Random random)
+    {
+        seed = (uint)(random.Next(1 << 30)) << 2 | (uint)(random.Next(1 << 2));
+        md5 = MD5.Create();
+    }
+
+    public uint GetHash(int number)
+    {
+        //I do there hashing for the price of one
+        var hash = md5.ComputeHash(BitConverter.GetBytes(number + seed));
+        return BitConverter.ToUInt32(hash, 0);
     }
 }
 
