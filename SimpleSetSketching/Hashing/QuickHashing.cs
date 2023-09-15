@@ -14,13 +14,25 @@ namespace SimpleSetSketching
 		LinearCongruence Third;
 		public QuickHashing()
 		{
-			First = new LinearCongruence(30000, 10000, 100057);
+			First = new LinearCongruence(100000000063, 100000000223, 100000004987);
 
-			Second = new LinearCongruence(3038821, 1192348, 102199);
+			Second = new LinearCongruence(100000003921, 203921, 100000002943);
 
-			Third = new LinearCongruence(10239, 1983283, 102233);
+			Third = new LinearCongruence(100000004837, 1983283, 100000003277);
 		}
 
+		public ulong FirstHash(ulong x)
+		{
+			return First.Hash(x);
+		}
+		public ulong SecondHash(ulong x)
+		{
+			return Second.Hash(x);
+		}
+		public ulong ThirdHash(ulong x)
+		{
+			return Third.Hash(x);
+		}
 		public (ulong, ulong, ulong) GetHash(ulong x)
 		{
 			return (First.Hash(x), Second.Hash(x), Third.Hash(x));

@@ -1,11 +1,13 @@
 ﻿using SimpleSetSketching;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,40 +15,78 @@ namespace SimpleSetSketching
 {
 	public static class QuickSimpleSetSketcher
 	{
-
+		static QuickHashing quickHashing = new QuickHashing();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ulong FirstHash(ulong i, ulong size)
 		{
-			return ((30000 * i + 10000) % 100057) % size;
+			//return quickHashing.FirstHash(i) % size;
+			return i & size;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 		public static ulong SecondHash(ulong i, ulong size)
 		{
-			return ((121312139322 * i + 2282313) % 102199) % size;
+			//return quickHashing.SecondHash(i) % size;
+			return ((121312139322 * i + 2282313) % 100000004761) & size;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 		public static ulong ThirdHash(ulong i, ulong size)
 		{
-			return ((927322731237 * i + 92342) % 102233) % size;
+			//return quickHashing.ThirdHash(i) % size;
+			return ((927322731237 * i + 92342) % 100000004483) & size;
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 		public static void Toogle(ulong i, ulong[] data, ulong size)
 		{
-			data[FirstHash(i, size)] ^= i;
-			data[SecondHash(i, size)] ^= i;
-			data[ThirdHash(i, size)] ^= i;
+			unsafe
+			{
+				/*
+				fixed (ulong* ptr = data)
+				{
+					*(ptr + FirstHash(i, size)) ^= i;
+					*(ptr + SecondHash(i, size)) ^= i;
+					*(ptr + ThirdHash(i, size)) ^= i;
+				}
+				*/
+				ulong index = FirstHash(i, size);
+				data[index] ^= i;
+				index = SecondHash(i, size);
+				data[index] ^= i;
+				index = ThirdHash(i, size);
+				data[index] ^= i;
+
+				/*
+				data[FirstHash(i, size)] ^= i;
+				data[SecondHash(i, size)] ^= i;
+				data[ThirdHash(i, size)] ^= i;
+				*/
+
+			}
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
-		public static bool LooksPure(ulong i, ulong[] data, ulong size)
+		public static bool LooksPure(ulong index, ulong[] data, ulong size)
 		{
-			ulong value = data[i];
-			if (value == 0) return false;
-			if (FirstHash(value, size) == i) return true;
-			if (SecondHash(value, size) == i) return true;
-			return (ThirdHash(value, size) == i);
+			var value = data[index];
+			/*
+			return ((data[index] != 0)) && (FirstHash(value, size) == index || SecondHash(value, size) == index || ThirdHash(value, size) == index);
+			*/
+			if (value == 0)
+			{
+				return false;
+			}
+			if (FirstHash(value, size) == index)
+			{
+				return true;
+			}
+			if (SecondHash(value, size) == index)
+			{
+				return true;
+			}
+			return ThirdHash(value, size) == index;
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
@@ -96,9 +136,9 @@ namespace SimpleSetSketching
 					}
 
 
-					AddIfPure(FirstHash(i, size), nextPure, data, size);
-					AddIfPure(SecondHash(i, size), nextPure, data, size);
-					AddIfPure(ThirdHash(i, size), nextPure, data, size);
+					AddIfPure(FirstHash(x, size), nextPure, data, size);
+					AddIfPure(SecondHash(x, size), nextPure, data, size);
+					AddIfPure(ThirdHash(x, size), nextPure, data, size);
 				}
 				pure = nextPure;
 			}
@@ -109,6 +149,7 @@ namespace SimpleSetSketching
 			};
 			return ansver;
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 		public static void Toogle(ulong[] toInsert, ulong[] simpleSetSketch)
 		{
@@ -117,6 +158,7 @@ namespace SimpleSetSketching
 				Toogle(toInsert[i], simpleSetSketch, (ulong)simpleSetSketch.Length);
 			}
 		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 
 		public static HashSet<ulong>? Decode(ulong[] simpleSetSketch, ulong size, int shotdownMultiplicator)
 		{
@@ -129,12 +171,18 @@ namespace SimpleSetSketching
 		ulong _size;
 		public SimpleSetSketcher(ulong size)
 		{
-			_data = new ulong[size];
-			this._size = size;
+
+			_size = 1;
+			while (_size < size)
+			{
+				_size <<= 1;
+				_size += 1;
+			}
+			_data = new ulong[_size + 1];
 		}
 		public HashSet<ulong>? Decode()
 		{
-			return QuickSimpleSetSketcher.Decode(_data, _size, 100);
+			return QuickSimpleSetSketcher.Decode(_data, _size, 1);
 		}
 
 		void Toogle(SketchStream insert)
@@ -157,6 +205,23 @@ namespace SimpleSetSketching
 		}
 	}
 
+	/*
+	public class ParallelSetSketcher : ISketcher
+	{
+		ulong[] _data;
+		ulong _size;
+		void Toogle(SketchStream insert)
+		{
+			while (true)
+			{
+				ulong next = insert.Next();
+				if (next == 0) break;
+				QuickSimpleSetSketcher.Toogle(next, _data, _size);
+			}
+		}
+
+	}
+	*/
 
 }
 

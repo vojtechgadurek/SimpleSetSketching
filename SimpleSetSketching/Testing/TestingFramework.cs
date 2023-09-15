@@ -35,8 +35,8 @@ namespace SimpleSetSketching
 				return new TestResult(false, endTime);
 			}
 			var expected = dataProvider.GetExpectedResult();
-			Console.WriteLine($"Expected: {expected.Count()}");
-			Console.WriteLine($"Result: {result.Count()}");
+			//Console.WriteLine($"Expected: {expected.Count()}");
+			//Console.WriteLine($"Result: {result.Count()}");
 			return new TestResult(result.Count() == expected.Count() && expected.All((x) => result.Contains(x)), endTime);
 		}
 
@@ -70,11 +70,11 @@ namespace SimpleSetSketching
 				yield return new SimpleSetSketcher(size);
 			}
 		}
-		public static IEnumerator<ISketcher> GetBasicSketcherProvider(ulong size, int number)
+		public static IEnumerator<ISketcher> GetBasicSketcherProvider(ulong size, int number, ISketchHashFunction sketchHashFunction)
 		{
 			for (int i = 0; i < number; i++)
 			{
-				yield return new BasicSimpleSetSketcher((uint)size, new QuickHashing());
+				yield return new BasicSimpleSetSketcher((uint)size, sketchHashFunction);
 			}
 		}
 

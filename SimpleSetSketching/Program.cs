@@ -19,15 +19,21 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
-		int size = 83380;
+		int size = 3000; //83380;
 		int numberOfRounds = 100;
-		/*var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProviderV02((ulong)(size * 2), numberOfRounds), numberOfRounds, size * 10, size, new Random(42));
+		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProviderV02((ulong)(size * 1.4), numberOfRounds), numberOfRounds, size * 1000, size, new Random(42));
+		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
+		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
+		/*
+		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(size * 1.4), numberOfRounds, new QuickHashing()), numberOfRounds, size * 10, size, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 		*/
-		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(size * 1.4), numberOfRounds), numberOfRounds, size * 10, size, new Random(42));
+		/*
+		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(size * 1.4), numberOfRounds, new Md5Simple()), numberOfRounds, size * 10, size, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
+		*/
 
 	}
 	/*
@@ -70,7 +76,7 @@ public class BasicSimpleSetSketcher : ISketcher
 	ulong[] _data;
 	ulong _size;
 	ISketchHashFunction _hashFunc;
-	ulong _shotDownMultiplicator = 10; //Sets maximum number of decoding rounds to prevent infinite loop
+	ulong _shotDownMultiplicator = 1; //Sets maximum number of decoding rounds to prevent infinite loop
 	public BasicSimpleSetSketcher(ulong size, ISketchHashFunction hashFunction)
 	{
 		_size = size;
@@ -353,7 +359,7 @@ public interface ISketchHashFunction
 	/// <returns></returns>
 	(ulong, ulong, ulong) GetHash(ulong x);
 }
-/*
+
 public class Md5Simple : ISketchHashFunction
 {
 
@@ -363,14 +369,14 @@ public class Md5Simple : ISketchHashFunction
 		md5 = MD5.Create();
 	}
 
-	public (ulong, ulong, ulong) GetHash(int number)
+	public (ulong, ulong, ulong) GetHash(ulong number)
 	{
 		//I do there hashing for the price of one
 		var hash = md5.ComputeHash(BitConverter.GetBytes(number));
-		return (BitConverter.ToUInt32(hash, 0), BitConverter.ToUInt32(hash, 4), BitConverter.ToUInt32(hash, 8));
+		return (BitConverter.ToUInt64(hash, 0), BitConverter.ToUInt64(hash, 4), BitConverter.ToUInt64(hash, 8));
 	}
 }
-*/
+
 
 public interface HashFunction
 {

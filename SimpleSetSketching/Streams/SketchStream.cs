@@ -32,7 +32,13 @@ namespace SimpleSetSketching
 			}
 			if (maxOffest == 0) return 0;
 			return buffer[offest++];
-
+		}
+		public void FillBuffer(ulong[] buffer, out int maxOffset)
+		{
+			lock (this)
+			{
+				provider.FillBuffer(buffer, out maxOffset);
+			}
 		}
 	}
 }
