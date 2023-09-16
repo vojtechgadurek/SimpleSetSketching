@@ -30,11 +30,22 @@ namespace SimpleSetSketching
 			sketcher.Remove(dataProvider.GetDataToRemove());
 			var result = sketcher.Decode();
 			var endTime = Stopwatch.GetElapsedTime(startTime);
+
+			var expected = dataProvider.GetExpectedResult();
+			Console.WriteLine($"Different items: {expected.Length}");
+
 			if (result is null)
 			{
 				return new TestResult(false, endTime);
 			}
-			var expected = dataProvider.GetExpectedResult();
+
+			dataProvider.Dispose();
+			result.SymmetricExceptWith(expected);
+			Console.WriteLine($"Difference in result and expected {result.Count}");
+			foreach (var item in result)
+			{
+				Console.WriteLine(new K_Mer(item));
+			}
 			//Console.WriteLine($"Expected: {expected.Count()}");
 			//Console.WriteLine($"Result: {result.Count()}");
 			return new TestResult(result.Count() == expected.Count() && expected.All((x) => result.Contains(x)), endTime);
@@ -75,6 +86,22 @@ namespace SimpleSetSketching
 			for (int i = 0; i < number; i++)
 			{
 				yield return new BasicSimpleSetSketcher((uint)size, sketchHashFunction);
+			}
+		}
+
+		public static IEnumerator<ISketcher> GetSimpleParrallerSketcherProvider(ulong size, int number, int maxThreads)
+		{
+			for (int i = 0; i < number; i++)
+			{
+				yield return new ParallelSetSketcher(size, maxThreads);
+			}
+		}
+
+		public static IEnumerator<ITestDataProvider> GetFastaFileDataProvider(string pathToFirstFile, string pathToSecondFile, int number)
+		{
+			for (int i = 0; i < number; i++)
+			{
+				yield return new FastaFileComparer(pathToFirstFile, pathToSecondFile);
 			}
 		}
 

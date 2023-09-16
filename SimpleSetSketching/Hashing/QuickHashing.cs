@@ -7,6 +7,20 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
+
+	public static class QuickHashingII
+	{
+
+		public static ulong RotateLeft(ulong toRotate, int bits)
+		{
+			return (toRotate << bits) | (toRotate >> (64 - bits));
+		}
+
+		public static ulong RotateRight(ulong toRotate, int bits)
+		{
+			return (toRotate >> bits) | (toRotate << (64 - bits));
+		}
+	}
 	public class QuickHashing : ISketchHashFunction
 	{
 		LinearCongruence First;

@@ -1,72 +1,56 @@
 ﻿using SimpleSetSketching;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
+using System.Data.HashFunction.MurmurHash;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
 	public static class QuickSimpleSetSketcher
 	{
 		static QuickHashing quickHashing = new QuickHashing();
+		static IMurmurHash3 hashAlgorithm = System.Data.HashFunction.MurmurHash.MurmurHash3Factory.Instance.Create();
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 		public static ulong FirstHash(ulong i, ulong size)
 		{
 			//return quickHashing.FirstHash(i) % size;
-			return i & size;
+			return i & (size - 1);
 		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static ulong SecondHash(ulong i, ulong size)
 		{
 			//return quickHashing.SecondHash(i) % size;
-			return ((121312139322 * i + 2282313) % 100000004761) & size;
+			ulong a = (i ^ (i >> 35)) * 0xbf58476d1ce4e5b9UL >> 33;
+			ulong b = (i ^ (i >> 29)) * 0x94d049bb133111ebUL;
+			return (a ^ b ^ i) & (size - 1);
 		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static ulong ThirdHash(ulong i, ulong size)
 		{
 			//return quickHashing.ThirdHash(i) % size;
-			return ((927322731237 * i + 92342) % 100000004483) & size;
+			//return ((927322731237 * i + 92342) % 100000004483) & size;
+			i = (i ^ (i >> 28)) * 0x3C79AC492BA7B653UL >> 33;
+			i = (i ^ (i << 29)) * 0x1C69B3F74AC4AE35UL;
+			return i & (size - 1);
+
 		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static void Toogle(ulong i, ulong[] data, ulong size)
 		{
 			unsafe
 			{
-				/*
-				fixed (ulong* ptr = data)
-				{
-					*(ptr + FirstHash(i, size)) ^= i;
-					*(ptr + SecondHash(i, size)) ^= i;
-					*(ptr + ThirdHash(i, size)) ^= i;
-				}
-				*/
 				ulong index = FirstHash(i, size);
 				data[index] ^= i;
 				index = SecondHash(i, size);
 				data[index] ^= i;
 				index = ThirdHash(i, size);
 				data[index] ^= i;
-
-				/*
-				data[FirstHash(i, size)] ^= i;
-				data[SecondHash(i, size)] ^= i;
-				data[ThirdHash(i, size)] ^= i;
-				*/
-
 			}
 		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static bool LooksPure(ulong index, ulong[] data, ulong size)
 		{
@@ -149,16 +133,7 @@ namespace SimpleSetSketching
 			};
 			return ansver;
 		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-
-		public static void Toogle(ulong[] toInsert, ulong[] simpleSetSketch)
-		{
-			for (int i = 0; i < toInsert.Length; i++)
-			{
-				Toogle(toInsert[i], simpleSetSketch, (ulong)simpleSetSketch.Length);
-			}
-		}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static HashSet<ulong>? Decode(ulong[] simpleSetSketch, ulong size, int shotdownMultiplicator)
 		{
@@ -167,25 +142,26 @@ namespace SimpleSetSketching
 	}
 	public class SimpleSetSketcher : ISketcher
 	{
-		ulong[] _data;
+		readonly ulong[] _data;
 		ulong _size;
 		public SimpleSetSketcher(ulong size)
 		{
 
-			_size = 1;
-			while (_size < size)
+			int power = 0;
+			while (((ulong)1 << power) < size)
 			{
-				_size <<= 1;
-				_size += 1;
+				power += 1;
 			}
-			_data = new ulong[_size + 1];
+			_size = (ulong)1 << power;
+			_data = new ulong[_size];
 		}
 		public HashSet<ulong>? Decode()
 		{
 			return QuickSimpleSetSketcher.Decode(_data, _size, 1);
 		}
 
-		void Toogle(SketchStream insert)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Toogle(SketchStream insert)
 		{
 			while (true)
 			{
@@ -203,27 +179,80 @@ namespace SimpleSetSketching
 		{
 			Toogle(remove);
 		}
+
+		public SimpleSetSketcher Merge(SimpleSetSketcher other)
+		{
+			if (other._size != _size)
+			{
+				throw new Exception("Cannot merge SimpleSetSketchers of different sizes");
+			}
+			ulong[] otherdata = other._data;
+			for (ulong i = 0; i < (ulong)otherdata.Length; i++)
+			{
+				_data[i] ^= otherdata[i];
+			}
+			return this;
+		}
 	}
 
-	/*
-	public class ParallelSetSketcher : ISketcher
+
+
+
+
+}
+public class ParallelSetSketcher : ISketcher
+{
+	SimpleSetSketcher[] _simpleSetSketchers;
+	SketchStream[] _streams;
+	ulong _size;
+	public ParallelSetSketcher(ulong size, int maxThreads)
 	{
-		ulong[] _data;
-		ulong _size;
-		void Toogle(SketchStream insert)
+		_size = size;
+		_simpleSetSketchers = new SimpleSetSketcher[maxThreads];
+		_streams = new SketchStream[maxThreads];
+		for (int i = 0; i < maxThreads; i++)
 		{
-			while (true)
-			{
-				ulong next = insert.Next();
-				if (next == 0) break;
-				QuickSimpleSetSketcher.Toogle(next, _data, _size);
-			}
+			var simpleSetSketcher = new SimpleSetSketcher(size);
+			_simpleSetSketchers[i] = simpleSetSketcher;
 		}
 
 	}
-	*/
 
+	void Toogle(SketchStream insert)
+	{
+		lock (this)
+		{
+			for (int i = 0; i < _streams.Length; i++)
+			{
+				_streams[i] = new SketchStream(insert, 1024); //THIS IS PROBLEMATIC - we expect buffer size to allow sizes up to 1024, IT NEEDS TO BE REDONE
+			}
+			Parallel.For(0, _simpleSetSketchers.Length, (i) =>
+			{
+				_simpleSetSketchers[i].Toogle(_streams[i]);
+			});
+		}
+	}
+
+	public void Insert(SketchStream insert)
+	{
+		Toogle(insert);
+	}
+	public void Remove(SketchStream remove)
+	{
+		Toogle(remove);
+	}
+
+	public HashSet<ulong>? Decode()
+	{
+		SimpleSetSketcher ansver = new SimpleSetSketcher(_size);
+		foreach (var simpleSetSketcher in _simpleSetSketchers)
+		{
+			ansver.Merge(simpleSetSketcher);
+		}
+		return ansver.Decode();
+	}
 }
+
 
 
 

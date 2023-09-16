@@ -1,6 +1,9 @@
 using System.Drawing;
 using Xunit.Sdk;
+using Xunit.Abstractions;
 using SimpleSetSketching;
+using SimpleSetSketching.Data;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 //fasta soubory .fa
 //> TCC  
 
@@ -8,6 +11,77 @@ using SimpleSetSketching;
 
 namespace Tests
 {
+	public class TestKMer
+	{
+		private readonly ITestOutputHelper output;
+
+		public TestKMer(ITestOutputHelper output)
+		{
+			this.output = output;
+		}
+		[Fact]
+		public void TestKMerSimple()
+		{
+			K_Mer k_Mer = new K_Mer(1);
+			k_Mer = k_Mer.PushInNewSymbol('C');
+			k_Mer = k_Mer.PushInNewSymbol('C');
+			k_Mer = k_Mer.PushInNewSymbol('T');
+			k_Mer = k_Mer.PushInNewSymbol('C');
+			k_Mer = k_Mer.PushInNewSymbol('C');
+
+
+		}
+		[Fact]
+		public void TestFastaReader()
+		{
+			void Push(char[] chars, char c)
+			{
+				for (int i = chars.Length - 1; i > 0; i--)
+				{
+					chars[i] = chars[i - 1];
+				}
+				chars[0] = c;
+			}
+			SketchStream sketchStream = new SketchStream(new FastaFileReader(NamesToFastaFiles.covid11, 1), 1);
+			K_Mer next;
+			StreamReader streamReader = new StreamReader(NamesToFastaFiles.covid11_copy);
+			streamReader.ReadLine();
+			char[] kmer = new char[31];
+			for (int i = kmer.Length - 2; i >= 0; i--)
+			{
+				kmer[i] = char.ToUpper((char)streamReader.Read());
+			}
+			int count = 0;
+			while (true)
+			{
+				count++;
+				next = new K_Mer(sketchStream.Next());
+				if (next.data == 0)
+				{
+					break;
+				}
+				while (true)
+				{
+					char c = (char)streamReader.Read();
+					Push(kmer, char.ToUpper(c));
+					if (char.IsUpper(c))
+					{
+						if (new string(kmer) != next.ToString())
+						{
+							output.WriteLine(count.ToString());
+						}
+						Assert.Equal(new String(kmer), next.ToString());
+						break;
+					}
+
+				}
+			}
+
+
+		}
+	}
+
+
 	public class OneValueTest
 	{
 		/*

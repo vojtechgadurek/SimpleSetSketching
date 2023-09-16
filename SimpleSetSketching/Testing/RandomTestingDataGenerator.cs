@@ -20,6 +20,12 @@ namespace SimpleSetSketching.Testing
 				this.data = data;
 				offset = 0;
 			}
+
+			public void Dispose()
+			{
+				//There is nothing to dispose
+			}
+
 			public void FillBuffer(ulong[] buffer, out int maxOffest)
 			{
 				if (offset + buffer.Length < data.Length)
@@ -56,6 +62,11 @@ namespace SimpleSetSketching.Testing
 				this.insert = insert;
 				this.remove = remove;
 				this.ansvers = ansvers;
+			}
+
+			public void Dispose()
+			{
+				//Nothing to dispose
 			}
 
 			public SketchStream GetDataToInsert()

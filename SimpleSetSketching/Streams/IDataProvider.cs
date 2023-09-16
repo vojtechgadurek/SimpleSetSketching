@@ -10,6 +10,7 @@ namespace SimpleSetSketching
 	{
 		SketchStream GetDataToInsert();
 		SketchStream GetDataToRemove();
+		void Dispose();
 	}
 	public interface ITestDataProvider : IDataProvider
 	{

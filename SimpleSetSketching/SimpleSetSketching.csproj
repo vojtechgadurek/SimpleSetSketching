@@ -8,4 +8,9 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="murmurhash" Version="1.0.3" />
+		<PackageReference Include="System.Data.HashFunction.MurmurHash" Version="2.0.0" />
+	</ItemGroup>
+
 </Project>

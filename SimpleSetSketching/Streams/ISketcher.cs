@@ -10,7 +10,7 @@ namespace SimpleSetSketching
 	{
 		void Insert(SketchStream insert);
 		void Remove(SketchStream insert);
-		HashSet<ulong> Decode();
+		HashSet<ulong>? Decode();
 	}
 
 }

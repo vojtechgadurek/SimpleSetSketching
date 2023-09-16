@@ -9,5 +9,6 @@ namespace SimpleSetSketching
 	public interface ISketchStreamProvider<T>
 	{
 		void FillBuffer(T[] buffer, out int maxOffest);
+		void Dispose();
 	}
 }

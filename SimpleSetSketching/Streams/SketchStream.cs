@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace SimpleSetSketching
 {
-	public class SketchStream
+	public class SketchStream : ISketchStreamProvider<ulong>
 	{
 		int offest;
 		int maxOffest;
@@ -24,6 +24,7 @@ namespace SimpleSetSketching
 		/// <returns></returns>
 		public ulong Next()
 		{
+
 			if (offest == maxOffest)
 			{
 				//Load new 
@@ -39,6 +40,11 @@ namespace SimpleSetSketching
 			{
 				provider.FillBuffer(buffer, out maxOffset);
 			}
+		}
+
+		public void Dispose()
+		{
+			provider.Dispose();
 		}
 	}
 }
