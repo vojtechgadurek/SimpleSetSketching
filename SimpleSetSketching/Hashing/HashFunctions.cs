@@ -36,14 +36,12 @@ namespace SimpleSetSketching
 		}
 		public static ulong FirstHash(ulong i, ulong size)
 		{
-			//return quickHashing.FirstHash(i) % size;
 			return i & (size - 1);
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static ulong SecondHash(ulong i, ulong size)
 		{
-			//return quickHashing.SecondHash(i) % size;
 			ulong a = (i ^ (i >> 35)) * 0xbf58476d1ce4e5b9UL >> 33;
 			ulong b = (i ^ (i >> 29)) * 0x94d049bb133111ebUL;
 			return (a ^ b ^ i) & (size - 1);
@@ -52,8 +50,6 @@ namespace SimpleSetSketching
 
 		public static ulong ThirdHash(ulong i, ulong size)
 		{
-			//return quickHashing.ThirdHash(i) % size;
-			//return ((927322731237 * i + 92342) % 100000004483) & size;
 			i = (i ^ (i >> 28)) * 0x3C79AC492BA7B653UL >> 33;
 			i = i ^ ((i * 0x1C69B3F74AC4AE35UL) >> 32);
 			return i & (size - 1);
