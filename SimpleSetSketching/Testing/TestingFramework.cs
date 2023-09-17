@@ -40,6 +40,7 @@ namespace SimpleSetSketching
 			}
 
 			dataProvider.Dispose();
+			bool success = result.Count() == expected.Count() && expected.All((x) => result.Contains(x));
 			result.SymmetricExceptWith(expected);
 			Console.WriteLine($"Difference in result and expected {result.Count}");
 			foreach (var item in result)
@@ -48,7 +49,7 @@ namespace SimpleSetSketching
 			}
 			//Console.WriteLine($"Expected: {expected.Count()}");
 			//Console.WriteLine($"Result: {result.Count()}");
-			return new TestResult(result.Count() == expected.Count() && expected.All((x) => result.Contains(x)), endTime);
+			return new TestResult(success, endTime);
 		}
 
 		public record struct TestResultCollection(List<TestResult> Results);
@@ -78,22 +79,30 @@ namespace SimpleSetSketching
 		{
 			for (int i = 0; i < number; i++)
 			{
-				yield return new SimpleSetSketcher(size);
+				yield return new SimpleSetSketcher_v02(size);
 			}
 		}
 		public static IEnumerator<ISketcher> GetBasicSketcherProvider(ulong size, int number, ISketchHashFunction sketchHashFunction)
 		{
 			for (int i = 0; i < number; i++)
 			{
-				yield return new BasicSimpleSetSketcher((uint)size, sketchHashFunction);
+				yield return new SimpleSetSketcher_v01((uint)size, sketchHashFunction);
 			}
 		}
 
-		public static IEnumerator<ISketcher> GetSimpleParrallerSketcherProvider(ulong size, int number, int maxThreads)
+		public static IEnumerator<ISketcher> GetSimpleParallerSketcherProvider(ulong size, int number, int maxThreads)
 		{
 			for (int i = 0; i < number; i++)
 			{
 				yield return new ParallelSetSketcher(size, maxThreads);
+			}
+		}
+
+		public static IEnumerator<ISketcher> GetInvertibleBloomFilterProvider(ulong size, int number)
+		{
+			for (int i = 0; i < number; i++)
+			{
+				yield return new InvertibleBloomFilter(size);
 			}
 		}
 
@@ -104,6 +113,5 @@ namespace SimpleSetSketching
 				yield return new FastaFileComparer(pathToFirstFile, pathToSecondFile);
 			}
 		}
-
 	}
 }

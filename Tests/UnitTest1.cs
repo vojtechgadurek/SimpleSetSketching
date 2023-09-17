@@ -42,7 +42,7 @@ namespace Tests
 				}
 				chars[0] = c;
 			}
-			SketchStream sketchStream = new SketchStream(new FastaFileReader(NamesToFastaFiles.covid11, 1), 1);
+			SketchStream sketchStream = new SketchStream(new FastaFileReader(NamesToFastaFiles.covid11, 1024), 1024);
 			K_Mer next;
 			StreamReader streamReader = new StreamReader(NamesToFastaFiles.covid11_copy);
 			streamReader.ReadLine();
