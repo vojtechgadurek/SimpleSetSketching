@@ -1,7 +1,9 @@
-﻿using SimpleSetSketching.Testing;
+﻿using SimpleSetSketching.Streams;
+using SimpleSetSketching.Testing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ namespace SimpleSetSketching
 {
 	static class TestingFramework
 	{
+
 		public record struct TestResult
 		{
 			public bool Success;
@@ -21,6 +24,7 @@ namespace SimpleSetSketching
 			}
 
 		}
+
 		public static TestResult TestOneDecoding(ISketcher sketcher, ITestDataProvider dataProvider)
 		{
 			var startTime = Stopwatch.GetTimestamp();
@@ -43,9 +47,13 @@ namespace SimpleSetSketching
 			bool success = result.Count() == expected.Count() && expected.All((x) => result.Contains(x));
 			result.SymmetricExceptWith(expected);
 			Console.WriteLine($"Difference in result and expected {result.Count}");
-			foreach (var item in result)
+			foreach (var item in result.Take(10))
 			{
 				Console.WriteLine(new K_Mer(item));
+			}
+			if (result.Count > 0)
+			{
+				Console.WriteLine("...");
 			}
 			//Console.WriteLine($"Expected: {expected.Count()}");
 			//Console.WriteLine($"Result: {result.Count()}");
@@ -75,14 +83,14 @@ namespace SimpleSetSketching
 			return TestMultipleDecodings(sketcherProvider, RandomTestingDataGenerator.GenerateNTestDataProviders(numberOfRounds, numberOfSameItems, NumberOfDifferentItems, random));
 		}
 
-		public static IEnumerator<ISketcher> GetBasicSketcherProviderV02(ulong size, int number)
+		public static IEnumerator<ISketcher> GetSimpleSketcher_v02_Provider(ulong size, int number)
 		{
 			for (int i = 0; i < number; i++)
 			{
 				yield return new SimpleSetSketcher_v02(size);
 			}
 		}
-		public static IEnumerator<ISketcher> GetBasicSketcherProvider(ulong size, int number, ISketchHashFunction sketchHashFunction)
+		public static IEnumerator<ISketcher> GetSimpleSetSketcher_v01_Provider(ulong size, int number, ISketchHashFunction sketchHashFunction)
 		{
 			for (int i = 0; i < number; i++)
 			{

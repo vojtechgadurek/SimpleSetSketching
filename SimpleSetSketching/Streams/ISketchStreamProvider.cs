@@ -10,5 +10,6 @@ namespace SimpleSetSketching
 	{
 		void FillBuffer(T[] buffer, out int maxOffest);
 		void Dispose();
+		ulong? Length();
 	}
 }

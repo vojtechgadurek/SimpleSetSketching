@@ -6,9 +6,6 @@ namespace SimpleSetSketching
 {
 	public static class StaticSimpleSetSketcher_v02
 	{
-		static QuickHashing quickHashing = new QuickHashing();
-		static IMurmurHash3 hashAlgorithm = System.Data.HashFunction.MurmurHash.MurmurHash3Factory.Instance.Create();
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 
 		public static void Toogle(ulong i, ulong[] data, ulong size)

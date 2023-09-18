@@ -46,5 +46,10 @@ namespace SimpleSetSketching
 		{
 			provider.Dispose();
 		}
+
+		public ulong? Length()
+		{
+			return provider.Length();
+		}
 	}
 }

@@ -89,5 +89,10 @@ namespace SimpleSetSketching
 		{
 			reader.Dispose();
 		}
+
+		public ulong? Length()
+		{
+			return (ulong)reader.BaseStream.Length;
+		}
 	}
 }

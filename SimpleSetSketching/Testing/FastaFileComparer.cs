@@ -51,7 +51,6 @@ namespace SimpleSetSketching.Testing
 				first = sketchStream.Next();
 				firstSet.Add(first);
 			}
-			PrintSomeInterestingInfo(firstSet);
 
 			HashSet<ulong> secondSet = new HashSet<ulong>();
 
@@ -61,9 +60,9 @@ namespace SimpleSetSketching.Testing
 				second = sketchStream2.Next();
 				secondSet.Add(second);
 			}
-			PrintSomeInterestingInfo(secondSet);
 
 			firstSet.SymmetricExceptWith(secondSet);
+			Dispose();
 			return firstSet.ToArray();
 		}
 

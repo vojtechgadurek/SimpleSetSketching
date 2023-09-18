@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleSetSketching
+namespace SimpleSetSketching.Streams
 {
-	internal class TestSketching
+	public interface ISketcherFactory
 	{
+		ISketcher CreateSketcher(ulong size);
 	}
 }

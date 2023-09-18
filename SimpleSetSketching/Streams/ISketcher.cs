@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
-	internal interface ISketcher
+	public interface ISketcher
 	{
 		void Insert(SketchStream insert);
 		void Remove(SketchStream insert);

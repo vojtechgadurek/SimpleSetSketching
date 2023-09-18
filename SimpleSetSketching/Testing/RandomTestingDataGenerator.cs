@@ -51,6 +51,11 @@ namespace SimpleSetSketching.Testing
 					offset += count;
 				}
 			}
+
+			public ulong? Length()
+			{
+				return (ulong)data.Length;
+			}
 		}
 		public class RandomTestDataProvider : ITestDataProvider
 		{

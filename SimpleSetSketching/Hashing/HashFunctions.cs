@@ -42,7 +42,7 @@ namespace SimpleSetSketching
 
 		public static ulong SecondHash(ulong i, ulong size)
 		{
-			ulong a = (i ^ (i >> 35)) * 0xbf58476d1ce4e5b9UL >> 33;
+			ulong a = (i ^ (i >> 35)) * 0xbf58476d1de4e5b9UL >> 33;
 			ulong b = (i ^ (i >> 29)) * 0x94d049bb133111ebUL;
 			return (a ^ b ^ i) & (size - 1);
 		}
@@ -50,7 +50,7 @@ namespace SimpleSetSketching
 
 		public static ulong ThirdHash(ulong i, ulong size)
 		{
-			i = (i ^ (i >> 28)) * 0x3C79AC492BA7B653UL >> 33;
+			i = (i ^ (i >> 28)) * 0x3C79AC482BA7B653UL >> 33;
 			i = i ^ ((i * 0x1C69B3F74AC4AE35UL) >> 32);
 			return i & (size - 1);
 		}
@@ -68,5 +68,6 @@ namespace SimpleSetSketching
 			i = (i ^ (i >> 33)) * 0x81A01B605B5E0B6FUL >> 31;
 			return i & (size - 1);
 		}
+
 	}
 }

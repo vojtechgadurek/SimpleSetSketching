@@ -5,27 +5,58 @@ using System.Reflection.Metadata.Ecma335;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System.ComponentModel;
 
 namespace SimpleSetSketching.SimpleSetSketchers
 {
 	class InvertibleBloomFilter : ISketcher
 	{
-		record struct RBFCell(int count, ulong keySum, ulong valueSum);
-		RBFCell[] _data;
-		const int _hashCount = 5;
+		public ulong G1HashFunction(ulong i)
+		{
+			i = (i ^ (i >> 33)) * 0x4A9D1C4D699E4B36UL >> 32;
+			i = (i ^ (i >> 29)) * 0x32BBD84192AABFEDUL >> 31;
+			return i & (_size - 1);
+		}
+		record struct IBMFCell(int Count, ulong KeySum, ulong ValueSum, ulong HashKeySum)
+		{
+			public IBMFCell Add(IBMFCell cell)
+			{
+				return new IBMFCell(
+				Count + cell.Count,
+				KeySum + cell.KeySum,
+				ValueSum + cell.ValueSum,
+				HashKeySum + cell.HashKeySum
+				);
+			}
+			public IBMFCell Sub(IBMFCell cell)
+			{
+				return new IBMFCell(
+				Count - cell.Count,
+				KeySum - cell.KeySum,
+				ValueSum - cell.ValueSum,
+				HashKeySum - cell.HashKeySum
+				);
+			}
+		};
+		IBMFCell[] _data;
+		const int _hashCount = 3;
 		ulong[] _hashes = new ulong[_hashCount];
 		ulong _size = 1;
 
 		public InvertibleBloomFilter(ulong size)
 		{
-			_size = size;
-			/*
+
 			while (_size < size)
 			{
 				_size <<= 1;
 			}
-			*/
-			_data = new RBFCell[_size];
+
+			_data = new IBMFCell[_size];
+			for (ulong i = 0; i < _size; i++)
+			{
+				_data[i] = new IBMFCell(0, 0, 0, 0);
+			}
 		}
 		public void Hashing(in ulong key, ulong[] hashes)
 		{
@@ -36,13 +67,9 @@ namespace SimpleSetSketching.SimpleSetSketchers
 			Hashing(key, _hashes);
 			for (int i = 0; i < _hashCount; i++)
 			{
-				ulong hash = _hashes[i];
-				RBFCell originalCell = _data[hash];
-				_data[hash] = new RBFCell(
-					originalCell.count + 1,
-					originalCell.keySum + key,
-					originalCell.valueSum + value
-					);
+				ulong hashkey = _hashes[i];
+				IBMFCell originalCell = _data[hashkey];
+				_data[hashkey] = originalCell.Add(new IBMFCell(1, key, value, G1HashFunction(key)));
 			}
 		}
 
@@ -51,74 +78,87 @@ namespace SimpleSetSketching.SimpleSetSketchers
 			Hashing(key, _hashes);
 			for (int i = 0; i < _hashCount; i++)
 			{
-				ulong hash = _hashes[i];
-				RBFCell originalCell = _data[hash];
-				_data[hash] = new RBFCell(
-					originalCell.count - 1,
-					originalCell.keySum - key,
-					originalCell.valueSum - value
-					);
+				ulong hashkey = _hashes[i];
+				IBMFCell originalCell = _data[hashkey];
+				_data[hashkey] = originalCell.Sub(new IBMFCell(1, key, value, G1HashFunction(key)));
 			}
 		}
 
 		public ulong? TryGet(ulong key)
 		{
 			Hashing(key, _hashes);
+			ulong G1Hash = G1HashFunction(key);
 			for (int i = 0; i < _hashCount; i++)
 			{
 				ulong hash = _hashes[i];
-				RBFCell cell = _data[hash];
-				if (cell.count == 0)
+				IBMFCell cell = _data[hash];
+				if (cell.Count == 0 && cell.KeySum == 0 && cell.HashKeySum == 0)
 				{
 					return null;
 				}
-				else if (cell.count == 1)
+				else if (cell.Count == 1 && cell.KeySum == key && cell.HashKeySum == G1Hash)
 				{
-					if (cell.keySum == key)
-					{
-						return cell.valueSum;
-					}
-					else
-					{
-						return null;
-					}
+					return cell.ValueSum;
+				}
+				else if (cell.Count == -1 && cell.KeySum == 0 - key && cell.HashKeySum == 0 - G1Hash)
+				{
+					return null;
 				}
 			}
-			throw new InvalidOperationException($"Key :{key} not found");
+			return null;
 		}
+
+
 		public (ulong, ulong)[] ListEntries()
 		{
 			List<(ulong, ulong)> ansver = new List<(ulong, ulong)>();
 			List<ulong> ones = new List<ulong>();
 			for (ulong i = 0; i < (ulong)_data.Length; i++)
-				if (_data[i].count == 1)
+			{
+				IBMFCell cell = _data[i];
+				if (cell.Count == 1)
 				{
 					ones.Add(i);
 				}
+				if (cell.Count == -1)
+				{
+					ones.Add(i);
+				}
+			}
 
 			while (ones.Count > 0)
 			{
 				var cell = _data[ones.Last()];
-				if (cell.count == 1)
+				ones.RemoveAt(ones.Count - 1);
+
+				if (cell.Count == 1)
 				{
-					ansver.Add(new(cell.keySum, cell.valueSum));
-					ones.RemoveAt(ones.Count - 1);
-					Delete(cell.keySum, cell.valueSum);
-					//If any deletion lead to count 0, we add them to ones
-					//This is more expensive than should be as hashing function is called twice
-					Hashing(cell.keySum, _hashes);
-					for (int i = 0; i < _hashCount; i++)
-					{
-						ulong hash = _hashes[i];
-						if (_data[hash].count == 1)
-						{
-							ones.Add(hash);
-						}
-					}
+					ulong G1Hash = G1HashFunction(cell.KeySum);
+					if (cell.HashKeySum != G1Hash) continue;
+					ansver.Add(new(cell.KeySum, cell.ValueSum));
+					Delete(cell.KeySum, cell.ValueSum);
+				}
+				else if (cell.Count == -1)
+				{
+					ulong G1Hash = G1HashFunction(0 - cell.KeySum);
+					if (cell.HashKeySum != 0 - G1Hash) continue;
+					Insert(0 - cell.KeySum, 0 - cell.ValueSum);
+					ansver.Add(new(0 - cell.KeySum, 0 - cell.ValueSum));
 				}
 				else
 				{
-					ones.RemoveAt(ones.Count - 1);
+					continue;
+				}
+				//If removed, check if any other cell should be added to queue
+				Hashing(cell.KeySum, _hashes);
+				for (int i = 0; i < _hashCount; i++)
+				{
+					ulong hash = _hashes[i];
+					var possibleCellWithOnes = _data[hash];
+					if (possibleCellWithOnes.Count == 1 | possibleCellWithOnes.Count == -1)
+					{
+						ones.Add(hash);
+					}
 				}
 
 			}
