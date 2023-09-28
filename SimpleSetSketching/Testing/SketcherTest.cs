@@ -67,7 +67,7 @@ namespace SimpleSetSketching.Testing
 			logger.Log($"Difference in result and expected {result.Count}");
 			foreach (var item in result.Take(10))
 			{
-				Console.WriteLine(new K_Mer(item));
+				//Console.WriteLine(new K_Mer(item));
 			}
 			if (result.Count > 10)
 			{

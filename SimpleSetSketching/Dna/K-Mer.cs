@@ -11,12 +11,17 @@ namespace SimpleSetSketching
 	public struct K_Mer
 	{
 		public readonly ulong data;
-		public const int K = 31;
-		public K_Mer(ulong data)
+		public const int _MaxK = 31;
+		public readonly int K;
+		private ulong _sizemask;
+		public K_Mer(ulong data, int size)
 		{
 			this.data = data;
+			this.K = size;
+			if (size > _MaxK) throw new ArgumentException($"{size} is over limit {_MaxK}");
+			_sizemask =  ((ulong) 1l << (size * 2)) - 1;
 		}
-		public static K_Mer Empty { get { return new K_Mer(1); } }
+		public static K_Mer Empty(int K) => new K_Mer(1, K);
 
 		public override string ToString()
 		{
@@ -62,9 +67,7 @@ namespace SimpleSetSketching
 		}
 		public K_Mer PushInNewSymbol(char symbol)
 		{
-			//Console.WriteLine($"B{Convert.ToString((long)data, 2).PadLeft(64, '0')}");
 			ulong newData = PushOneStep(RemoveHeader(data));
-			//Console.WriteLine($"H{Convert.ToString((long)newData, 2).PadLeft(64, '0')}");
 			symbol = Char.ToUpper(symbol);
 			switch (symbol)
 			{
@@ -83,8 +86,9 @@ namespace SimpleSetSketching
 				default:
 					throw new InvalidEnumArgumentException();
 			}
-			//Console.WriteLine($"A{Convert.ToString((long)newData, 2).PadLeft(64, '0')}");
-			return new K_Mer(AddHeader(newData));
+			//throw out ones that are over the limit
+			newData = newData & _sizemask;
+			return new K_Mer(AddHeader(newData), K);
 		}
 	}
 }

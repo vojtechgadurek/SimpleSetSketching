@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSetSketching", "SimpleSetSketching\SimpleSetSketching.csproj", "{E3CE5E6E-56BC-4340-BD9D-8E02FBBA30C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{34424CB2-0163-4D13-A88B-84BB6DC892B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{34424CB2-0163-4D13-A88B-84BB6DC892B1}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleSetSketchingFSharp", "SimpleSetSketchingFSharp\SimpleSetSketchingFSharp.fsproj", "{9F652393-65A3-4BC6-B9FE-30F3CB5F873D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{34424CB2-0163-4D13-A88B-84BB6DC892B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34424CB2-0163-4D13-A88B-84BB6DC892B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34424CB2-0163-4D13-A88B-84BB6DC892B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F652393-65A3-4BC6-B9FE-30F3CB5F873D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F652393-65A3-4BC6-B9FE-30F3CB5F873D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F652393-65A3-4BC6-B9FE-30F3CB5F873D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F652393-65A3-4BC6-B9FE-30F3CB5F873D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

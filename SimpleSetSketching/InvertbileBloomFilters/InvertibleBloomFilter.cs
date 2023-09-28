@@ -18,29 +18,9 @@ namespace SimpleSetSketching.SimpleSetSketchers
 			i = (i ^ (i >> 29)) * 0x32BBD84192AABFEDUL >> 31;
 			return i & (_size - 1);
 		}
-		record struct IBMFCell(int Count, ulong KeySum, ulong ValueSum, ulong HashKeySum)
-		{
-			public IBMFCell Add(IBMFCell cell)
-			{
-				return new IBMFCell(
-				Count + cell.Count,
-				KeySum + cell.KeySum,
-				ValueSum + cell.ValueSum,
-				HashKeySum + cell.HashKeySum
-				);
-			}
-			public IBMFCell Sub(IBMFCell cell)
-			{
-				return new IBMFCell(
-				Count - cell.Count,
-				KeySum - cell.KeySum,
-				ValueSum - cell.ValueSum,
-				HashKeySum - cell.HashKeySum
-				);
-			}
-		};
+		record struct IBMFCell(int Count, ulong KeySum, ulong ValueSum, ulong HashKeySum);
 		IBMFCell[] _data;
-		const int _hashCount = 3;
+		const int _hashCount = 5;
 		ulong[] _hashes = new ulong[_hashCount];
 		ulong _size = 1;
 
@@ -69,7 +49,13 @@ namespace SimpleSetSketching.SimpleSetSketchers
 			{
 				ulong hashkey = _hashes[i];
 				IBMFCell originalCell = _data[hashkey];
-				_data[hashkey] = originalCell.Add(new IBMFCell(1, key, value, G1HashFunction(key)));
+				_data[hashkey] = new IBMFCell(
+					originalCell.Count + 1,
+					originalCell.KeySum + key,
+					originalCell.ValueSum + value,
+					originalCell.HashKeySum + G1HashFunction(key)
+					);
+
 			}
 		}
 
@@ -80,7 +66,12 @@ namespace SimpleSetSketching.SimpleSetSketchers
 			{
 				ulong hashkey = _hashes[i];
 				IBMFCell originalCell = _data[hashkey];
-				_data[hashkey] = originalCell.Sub(new IBMFCell(1, key, value, G1HashFunction(key)));
+				_data[hashkey] = new IBMFCell(
+					originalCell.Count - 1,
+					originalCell.KeySum - key,
+					originalCell.ValueSum - value,
+					originalCell.HashKeySum - G1HashFunction(key)
+					);
 			}
 		}
 

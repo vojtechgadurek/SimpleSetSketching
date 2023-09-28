@@ -22,7 +22,7 @@ namespace Tests
 		[Fact]
 		public void TestKMerSimple()
 		{
-			K_Mer k_Mer = new K_Mer(1);
+			K_Mer k_Mer = new K_Mer(1, 31);
 			k_Mer = k_Mer.PushInNewSymbol('C');
 			k_Mer = k_Mer.PushInNewSymbol('C');
 			k_Mer = k_Mer.PushInNewSymbol('T');
@@ -55,7 +55,7 @@ namespace Tests
 			while (true)
 			{
 				count++;
-				next = new K_Mer(sketchStream.Next());
+				next = new K_Mer(sketchStream.Next(), 31);
 				if (next.data == 0)
 				{
 					break;

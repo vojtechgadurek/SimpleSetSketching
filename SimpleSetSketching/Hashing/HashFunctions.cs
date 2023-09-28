@@ -50,9 +50,9 @@ namespace SimpleSetSketching
 
 		public static ulong ThirdHash(ulong i, ulong size)
 		{
-			i = (i ^ (i >> 28)) * 0x3C79AC482BA7B653UL >> 33;
-			i = i ^ ((i * 0x1C69B3F74AC4AE35UL) >> 32);
-			return i & (size - 1);
+			ulong a  = (i ^ (i >> 28)) * 0x3C79AC482BA7B653UL >> 33;
+			ulong b  = i ^ ((i * 0x1C69B3F74AC4AE35UL) >> 32);
+			return (a^b^i) & (size - 1);
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 		public static ulong FourthHash(ulong i, ulong size)

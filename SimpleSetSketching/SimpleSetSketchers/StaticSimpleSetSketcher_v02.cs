@@ -2,6 +2,7 @@
 using System.Data.HashFunction.MurmurHash;
 using System.Runtime.CompilerServices;
 
+
 namespace SimpleSetSketching
 {
 	public static class StaticSimpleSetSketcher_v02
@@ -138,7 +139,8 @@ namespace SimpleSetSketching
 			{
 				ulong next = insert.Next();
 				if (next == 0) break;
-				StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
+				SimpleSetSketchingFSharp.SimpleSetSketcher.testToogle(_data,next, _size - 1);
+				//StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
 			}
 		}
 		public void Insert(SketchStream insert)
