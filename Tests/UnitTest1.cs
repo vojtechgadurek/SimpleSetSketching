@@ -19,16 +19,23 @@ namespace Tests
 		{
 			this.output = output;
 		}
-		[Fact]
-		public void TestKMerSimple()
+		[Theory]
+		[InlineData("CCTC", 1)]
+		[InlineData("CCTCGCCGA", 3)]
+		public void TestKMerSimple(string dna, int k_merSize)
 		{
-			K_Mer k_Mer = new K_Mer(1, 31);
-			k_Mer = k_Mer.PushInNewSymbol('C');
-			k_Mer = k_Mer.PushInNewSymbol('C');
-			k_Mer = k_Mer.PushInNewSymbol('T');
-			k_Mer = k_Mer.PushInNewSymbol('C');
-			k_Mer = k_Mer.PushInNewSymbol('C');
+			K_Mer k_Mer = new K_Mer(1, k_merSize);
+			for (int i = 0; i < k_merSize; i++)
+			{
+				k_Mer = k_Mer.PushInNewSymbol(dna[i]);
 
+			}
+			for (int i = 0; i < dna.Length - k_merSize; i++)
+			{
+				string kmerExpected = dna.Substring(i, k_merSize);
+				Assert.Equal(kmerExpected, new string (k_Mer.ToString().Reverse().ToArray()));
+				k_Mer = k_Mer.PushInNewSymbol(dna[i + k_merSize]);
+			}
 
 		}
 		[Fact]
