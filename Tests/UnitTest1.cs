@@ -22,6 +22,7 @@ namespace Tests
 		[Theory]
 		[InlineData("CCTC", 1)]
 		[InlineData("CCTCGCCGA", 3)]
+		[InlineData("CCTAGCCAAAAG", 5)]
 		public void TestKMerSimple(string dna, int k_merSize)
 		{
 			K_Mer k_Mer = new K_Mer(1, k_merSize);

@@ -47,21 +47,20 @@ namespace SimpleSetSketching
 	{
 		//Tohle není správně to jde z druhé strany
 		//Je potřeba číst přečíst první řádek
-
-		StreamReader reader;
+		TextReader reader;
 		int bufferOffset = 0;
 		char[] _buffer;
 		int maxBufferOffest;
 		K_Mer current;
 		Circle<char> chars;
-		ulong lenght;
+		int _lenght;
 		int lenghtOfKMer;
 		
 
 		public FastaFileReader(string path, int bufferSize)
 		{
 			reader = new StreamReader(path);
-			(lenghtOfKMer, lenght) = ParseFirstLineData(reader.ReadLine());
+			(lenghtOfKMer, _lenght) = ParseFirstLineData(reader.ReadLine());
 			
 
 			_buffer = new char[bufferSize];
@@ -155,7 +154,7 @@ namespace SimpleSetSketching
 
 		public ulong? Length()
 		{
-			return (ulong)reader.BaseStream.Length;
+			return _lenght;
 		}
 	}
 }

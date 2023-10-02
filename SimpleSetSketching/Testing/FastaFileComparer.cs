@@ -8,12 +8,12 @@ namespace SimpleSetSketching.Testing
 {
 	internal class FastaFileComparer : ITestDataProvider
 	{
-		string _firstFile;
-		string _secondFile;
+		TextReader _firstFile;
+		TextReader _secondFile;
 		FastaFileReader _firstReader;
 		FastaFileReader _secondReader;
 
-		public FastaFileComparer(string firstFile, string secondFile)
+		public FastaFileComparer(TextReader firstFile, TextReader secondFile)
 		{
 			_firstFile = firstFile;
 			_secondFile = secondFile;
