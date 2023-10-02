@@ -12,6 +12,7 @@ namespace SimpleSetSketching
 		int offest;
 		int maxOffest;
 		ulong[] buffer;
+		public int BufferSize { get { return buffer.Length; } }
 		ISketchStreamProvider<ulong> provider;
 		public SketchStream(ISketchStreamProvider<ulong> provider, int bufferSize)
 		{
@@ -34,6 +35,11 @@ namespace SimpleSetSketching
 			if (maxOffest == 0) return 0;
 			return buffer[offest++];
 		}
+		/// <summary>
+		/// Provide buffer to data provider to fill it with data as such it does not use its own buffer in any way, data may not thus be in same order.
+		/// </summary>
+		/// <param name="buffer"></param>
+		/// <param name="maxOffset"></param>
 		public void FillBuffer(ulong[] buffer, out int maxOffset)
 		{
 			lock (this)

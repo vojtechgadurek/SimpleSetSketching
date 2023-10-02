@@ -197,7 +197,11 @@ public class ParallelSetSketcher : ISketcher
 		{
 			for (int i = 0; i < _streams.Length; i++)
 			{
-				_streams[i] = new SketchStream(insert, 1024); //THIS IS PROBLEMATIC - we expect buffer size to allow sizes up to 1024, IT NEEDS TO BE REDONE
+				_streams[i] = new SketchStream(insert, 1024); 
+				//Old ->
+				//THIS IS PROBLEMATIC - we expect buffer size to allow sizes up to 1024, IT NEEDS TO BE REDONE
+				//<-End 
+				//This should work correctly 10.2.2023
 			}
 			Parallel.For(0, _simpleSetSketchers.Length, (i) =>
 			{
