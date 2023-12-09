@@ -53,15 +53,15 @@ namespace SimpleSetSketching
 		int maxBufferOffest;
 		K_Mer current;
 		Circle<char> chars;
-		int _lenght;
+		ulong _lenght;
 		int lenghtOfKMer;
-		
+
 
 		public FastaFileReader(string path, int bufferSize)
 		{
 			reader = new StreamReader(path);
 			(lenghtOfKMer, _lenght) = ParseFirstLineData(reader.ReadLine());
-			
+
 
 			_buffer = new char[bufferSize];
 
@@ -71,7 +71,7 @@ namespace SimpleSetSketching
 
 
 
-			for (int i = 0; i < (int) lenghtOfKMer - 1; i++)
+			for (int i = 0; i < (int)lenghtOfKMer - 1; i++)
 			{
 				char? nextBuffer = NextCharFromBuffer();
 				if (nextBuffer == null) break;
@@ -81,13 +81,14 @@ namespace SimpleSetSketching
 
 		}
 
-		public (int, ulong) ParseFirstLineData(string header) {
+		public (int, ulong) ParseFirstLineData(string header)
+		{
 			var splited = header.Split(' ');
-			if (splited is null ) throw new ArgumentException("Header is not in correct format");
+			if (splited is null) throw new ArgumentException("Header is not in correct format");
 
 			int k = int.Parse(splited[2].Split('=')[1]);
 			ulong l = ulong.Parse(splited[1].Split('=')[1]);
-			return(k, l);
+			return (k, l);
 
 		}
 

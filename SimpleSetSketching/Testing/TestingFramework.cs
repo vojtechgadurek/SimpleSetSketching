@@ -118,7 +118,7 @@ namespace SimpleSetSketching
 		{
 			for (int i = 0; i < number; i++)
 			{
-				yield return new FastaFileComparer(pathToFirstFile, pathToSecondFile);
+				yield return new FastaFileComparer(new StreamReader(pathToFirstFile), new StreamReader(pathToSecondFile));
 			}
 		}
 	}
