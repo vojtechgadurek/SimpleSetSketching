@@ -10,19 +10,21 @@ namespace SimpleSetSketching.Testing
 {
 	public class SketcherTest
 	{
-		ISketcher sketcher;
-		ITestDataProvider dataProvider;
-		ILogger<string> logger;
+		ISketcher? sketcher;
+		ITestDataProvider? dataProvider;
+		ILogger<string>? logger;
 		public TestResult Result { get; private set; }
 
 		public record struct TestResult
 		{
-			public bool Success;
+			public int? Diferences;
+			public bool Decoded;
 			public TimeSpan Time;
-			public TestResult(bool success, TimeSpan time)
+			public TestResult(int? diferences, bool decoded, TimeSpan time)
 			{
-				Success = success;
+				Diferences = diferences;
 				Time = time;
+				Decoded = decoded;
 			}
 
 		}
@@ -44,20 +46,42 @@ namespace SimpleSetSketching.Testing
 		}
 		public void Run()
 		{
+			if (sketcher is null)
+			{
+				throw new InvalidOperationException("Sketcher is not set");
+			}
+			if (dataProvider is null)
+			{
+				throw new InvalidOperationException("DataProvider is not set");
+			}
+			if (logger is null)
+			{
+				throw new InvalidOperationException("Logger is not set");
+			}
+
+			//Start testing
 			var startTime = Stopwatch.GetTimestamp();
 			var dataToInsert = dataProvider.GetDataToInsert();
+
+			//Insert data
 			sketcher.Insert(dataToInsert);
 
+			//Remove data
 			sketcher.Remove(dataProvider.GetDataToRemove());
+
+			//Try decode
 			var result = sketcher.Decode();
+
+			//Stop testing
 			var endTime = Stopwatch.GetElapsedTime(startTime);
 
+			//Chceck result and expected data
 			var expected = dataProvider.GetExpectedResult();
 			logger.Log($"Different items: {expected.Length}");
 
 			if (result is null)
 			{
-				Result = new TestResult(false, endTime);
+				Result = new TestResult(null, false, endTime);
 				return;
 			}
 
@@ -65,20 +89,8 @@ namespace SimpleSetSketching.Testing
 			bool success = result.Count() == expected.Count() && expected.All((x) => result.Contains(x));
 			result.SymmetricExceptWith(expected);
 			logger.Log($"Difference in result and expected {result.Count}");
-			foreach (var item in result.Take(10))
-			{
-				//Console.WriteLine(new K_Mer(item));
-			}
-			if (result.Count > 10)
-			{
-				logger.Log("...");
-			}
 
-			if (result is null)
-			{
-				Result = new TestResult(false, endTime);
-				return;
-			}
+			Result = new TestResult(result.Count, true, endTime);
 		}
 	}
 }

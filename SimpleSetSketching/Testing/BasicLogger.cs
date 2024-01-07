@@ -12,7 +12,7 @@ namespace SimpleSetSketching.Testing
 		bool vocal;
 		public BasicLogger(bool vocal = false)
 		{
-			this.list = list;
+			this.list = new List<T>();
 			this.vocal = vocal;
 		}
 		public void Log(T item)

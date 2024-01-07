@@ -90,8 +90,6 @@ namespace SimpleSetSketching
 					{
 						ansver.Add(x);
 					}
-
-
 					AddIfPure(HashFunctions.FirstHash(x, size), nextPure, data, size);
 					AddIfPure(HashFunctions.SecondHash(x, size), nextPure, data, size);
 					AddIfPure(HashFunctions.ThirdHash(x, size), nextPure, data, size);
@@ -139,7 +137,7 @@ namespace SimpleSetSketching
 			{
 				ulong next = insert.Next();
 				if (next == 0) break;
-				SimpleSetSketchingFSharp.SimpleSetSketcher.testToogle(_data,next, _size - 1);
+				SimpleSetSketchingFSharp.SimpleSetSketcher.testToogle(_data, next, _size - 1);
 				//StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
 			}
 		}
@@ -197,7 +195,7 @@ public class ParallelSetSketcher : ISketcher
 		{
 			for (int i = 0; i < _streams.Length; i++)
 			{
-				_streams[i] = new SketchStream(insert, 1024); 
+				_streams[i] = new SketchStream(insert, 1024);
 				//Old ->
 				//THIS IS PROBLEMATIC - we expect buffer size to allow sizes up to 1024, IT NEEDS TO BE REDONE
 				//<-End 

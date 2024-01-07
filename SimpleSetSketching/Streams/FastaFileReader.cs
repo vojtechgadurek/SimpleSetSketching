@@ -47,41 +47,30 @@ namespace SimpleSetSketching
 	{
 		//Tohle není správně to jde z druhé strany
 		//Je potřeba číst přečíst první řádek
-		TextReader reader;
-		int bufferOffset = 0;
+		TextReader _reader;
+		int _bufferOffset = 0;
 		char[] _buffer;
-		int maxBufferOffest;
-		K_Mer current;
-		Circle<char> chars;
+		int _maxBufferOffest;
+		K_Mer _K_Mer;
 		ulong _lenght;
-		int lenghtOfKMer;
+		int _lenghtOfKMer;
+		UnsafeFixedSizeQueue<char> _charBuffer;
 
 
-		public FastaFileReader(string path, int bufferSize)
+		public FastaFileReader(TextReader reader, int bufferSize)
 		{
-			reader = new StreamReader(path);
-			(lenghtOfKMer, _lenght) = ParseFirstLineData(reader.ReadLine());
-
+			(_lenghtOfKMer, _lenght) = ParseFirstLineData(reader.ReadLine());
+			_reader = reader;
 
 			_buffer = new char[bufferSize];
+			_charBuffer = new UnsafeFixedSizeQueue<char>(_lenghtOfKMer);
+			_K_Mer = K_Mer.Empty((int)_lenghtOfKMer);
 
-
-			chars = new Circle<char>((int)lenghtOfKMer);
-			current = K_Mer.Empty((int)lenghtOfKMer);
-
-
-
-			for (int i = 0; i < (int)lenghtOfKMer - 1; i++)
-			{
-				char? nextBuffer = NextCharFromBuffer();
-				if (nextBuffer == null) break;
-				TryCreateNewK_MerFromChar((char)nextBuffer);
-			}
-
+			for (int i = 0; i < _lenghtOfKMer - 1; i++) PushChar((char)NextCharFromBuffer());
 
 		}
 
-		public (int, ulong) ParseFirstLineData(string header)
+		private (int, ulong) ParseFirstLineData(string header)
 		{
 			var splited = header.Split(' ');
 			if (splited is null) throw new ArgumentException("Header is not in correct format");
@@ -92,34 +81,41 @@ namespace SimpleSetSketching
 
 		}
 
-		public bool TryCreateNewK_MerFromChar(char c)
+		private void PushChar(char c)
 		{
-			if (c == '\n' || c == '\r') { return false; };
-
-			chars.Push(c);
-			current = current.PushInNewSymbol(c);
-			return char.IsUpper(chars.First());
+			_charBuffer.Enqueue(c);
+			_K_Mer = _K_Mer.PushInNewSymbol(c);
+		}
+		private ulong? TryCreateNewK_MerFromChar(char c)
+		{
+			if (c == '\n' || c == '\r') { return null; };
+			PushChar(c);
+			if (char.IsUpper((char)_charBuffer.Dequeue()))
+			{
+				return _K_Mer.data;
+			}
+			return null;
 		}
 
 		void FillLocalBuffer()
 		{
-			maxBufferOffest = reader.Read(_buffer, 0, _buffer.Length);
-			bufferOffset = 0;
+			_maxBufferOffest = _reader.Read(_buffer, 0, _buffer.Length);
+			_bufferOffset = 0;
 		}
 
 		public char? NextCharFromBuffer()
 		{
-			if (bufferOffset == maxBufferOffest)
+			if (_bufferOffset == _maxBufferOffest)
 			{
 				FillLocalBuffer();
 			}
-			if (bufferOffset == maxBufferOffest)
+			if (_bufferOffset == _maxBufferOffest)
 			{
 				return null;
 			}
 			else
 			{
-				return _buffer[bufferOffset++];
+				return _buffer[_bufferOffset++];
 			}
 		}
 
@@ -129,11 +125,11 @@ namespace SimpleSetSketching
 			int count = 0;
 			while (count < buffer.Length)
 			{
-				char? nextBuffer = NextCharFromBuffer();
+				char? nextCharFromBufferToPush = NextCharFromBuffer();
 
-				if (nextBuffer == null) break;
+				if (nextCharFromBufferToPush == null) break;
 
-				if (TryCreateNewK_MerFromChar((char)nextBuffer)) buffer[count++] = current.data;
+				if (TryCreateNewK_MerFromChar((char)nextCharFromBufferToPush) is not null) buffer[count++] = _K_Mer.data;
 			}
 
 			maxOffset = count;
@@ -150,7 +146,7 @@ namespace SimpleSetSketching
 
 		public void Dispose()
 		{
-			reader.Dispose();
+			_reader.Dispose();
 		}
 
 		public ulong? Length()

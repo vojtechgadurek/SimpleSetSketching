@@ -20,7 +20,7 @@ namespace SimpleSetSketching
 			this.K = size;
 			if (size > _MaxK) throw new ArgumentException($"{size} is over limit {_MaxK}");
 			//Last two bits are left to header
-			_sizemask =  ((ulong) 1l << ((size * 2) + 2 + 1)) - 1;
+			_sizemask = ((ulong)1L << ((size * 2) + 2 + 1)) - 1;
 		}
 		public static K_Mer Empty(int K) => new K_Mer(1, K);
 

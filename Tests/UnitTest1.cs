@@ -4,6 +4,7 @@ using Xunit.Abstractions;
 using SimpleSetSketching;
 using SimpleSetSketching.Data;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
+using SimpleSetSketching.Testing;
 //fasta soubory .fa
 //> TCC  
 
@@ -34,118 +35,112 @@ namespace Tests
 			for (int i = 0; i < dna.Length - k_merSize; i++)
 			{
 				string kmerExpected = dna.Substring(i, k_merSize);
-				Assert.Equal(kmerExpected, new string (k_Mer.ToString().Reverse().ToArray()));
+				Assert.Equal(kmerExpected, new string(k_Mer.ToString().Reverse().ToArray()));
 				k_Mer = k_Mer.PushInNewSymbol(dna[i + k_merSize]);
 			}
 
 		}
+
+
+		[Theory]
+		[InlineData("CCTCAAAAACTG", 5)]
+		[InlineData("CCTCAAAAAAAAAAAAAAACTG", 5)]
+		[InlineData("CCTCAAAAAAAAAAAAAAACTG", 2)]
+		[InlineData("CCTCAAAAAAAAAAAAAAACTG", 1)]
+		[InlineData("AAAAA", 5)]
+		[InlineData("aGaGaGaGaG", 5)]
+		[InlineData("aGaGaGaGaGaGaGaGaGaG", 5)]
+		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 5)]
+		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 1)]
+		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 2)]
+
+		public void TestFastaReaderWithMockTextReader(string input, int k_mer)
+		{
+			string header = $">superstring l={input.Length} k={k_mer}";
+			string file = header + "\n" + input;
+			TextReader textReader = new StringReader(file);
+			FastaFileReader fastaFileReader = new FastaFileReader(textReader, 1024);
+
+			ulong[] buffer = new ulong[1];
+			for (int i = 0; i < input.Length - k_mer + 1; i++)
+			{
+				if (char.IsUpper(input[i]))
+				{
+					string k_merExpected = input.Substring(i, k_mer).ToUpper();
+					fastaFileReader.FillBuffer(buffer, out int _);
+					string k_merActual = new string(new K_Mer(buffer[0], k_mer).ToString().Reverse().ToArray());
+					Assert.Equal(k_merExpected, k_merActual);
+				}
+			}
+
+		}
+
 		[Fact]
 		public void TestFastaReader()
 		{
-			void Push(char[] chars, char c)
-			{
-				for (int i = chars.Length - 1; i > 0; i--)
-				{
-					chars[i] = chars[i - 1];
-				}
-				chars[0] = c;
-			}
-			SketchStream sketchStream = new SketchStream(new FastaFileReader(NamesToFastaFiles.covid11, 1024), 1024);
+			SketchStream sketchStream = new SketchStream(new FastaFileReader(new StreamReader(NamesToFastaFiles.covid11), 1024), 1024);
 			K_Mer next;
 			StreamReader streamReader = new StreamReader(NamesToFastaFiles.covid11_copy);
 			streamReader.ReadLine();
-			char[] kmer = new char[31];
-			for (int i = kmer.Length - 2; i >= 0; i--)
+			string input = streamReader.ReadLine();
+			ulong[] buffer = new ulong[1];
+			int k_mer = 11;
+			for (int i = 0; i < input.Length - k_mer + 1; i++)
 			{
-				kmer[i] = char.ToUpper((char)streamReader.Read());
-			}
-			int count = 0;
-			while (true)
-			{
-				count++;
-				next = new K_Mer(sketchStream.Next(), 31);
-				if (next.data == 0)
+				if (char.IsUpper(input[i]))
 				{
-					break;
-				}
-				while (true)
-				{
-					char c = (char)streamReader.Read();
-					Push(kmer, char.ToUpper(c));
-					if (char.IsUpper(c))
-					{
-						if (new string(kmer) != next.ToString())
-						{
-							output.WriteLine(count.ToString());
-						}
-						Assert.Equal(new String(kmer), next.ToString());
-						break;
-					}
-
+					string k_merExpected = input.Substring(i, k_mer).ToUpper();
+					sketchStream.FillBuffer(buffer, out int _);
+					string k_merActual = new string(new K_Mer(buffer[0], k_mer).ToString().Reverse().ToArray());
+					Assert.Equal(k_merExpected, k_merActual);
 				}
 			}
-
-
 		}
 	}
 
-
-	public class OneValueTest
+	public class PerformanceTests
 	{
-		/*
+	}
+
+	public class TestDynamicConstantTypeCreator
+	{
 		[Fact]
-		public void Test1()
+		void SimpleCreationTest()
 		{
-			var ketcher = new BasicSimpleSetSketcher(16, new Md5Simple());
-			ketcher.Toogle(1);
-			var ansver = ketcher.Decode();
-			Assert.Equal(1, ansver.Data.Count);
-			Assert.Contains(1, ansver.Data);
-		}
-		[Theory]
-		[InlineData(4)]
-		[InlineData(10)]
-		[InlineData(100)]
-		public void TestFailRange(uint range)
-		{
-			var sketcher = new BasicSimpleSetSketcher(range, new Md5Simple());
-			for (int i = 1; i < 10; i++)
-			{
-				sketcher.Toogle(i);
-			}
-			for (int i = 2; i < 11; i++)
-			{
-				sketcher.Toogle(i);
-			}
-			var ansver = sketcher.Decode();
-			Assert.Contains(1, ansver.Data);
-			Assert.Contains(10, ansver.Data);
+			Type two = SimpleSetSketching.DynamicConstantTypeCreator<uint>.GetConstant(2);
+			var value = two.GetFields();
+			Assert.Equal(2u, two.GetField("value").GetValue(null));
 		}
 	}
-	public class LongTest
+
+
+	public class BitValueArrayTest
 	{
-		[Theory]
-		[InlineData(100, 10, 20)]
-		[InlineData(100, 10, 10)]
-		[InlineData(100, 10, 8)]
-		[InlineData(1000, 100, 180)]
-		[InlineData(1000, 100, 200)]
-		[InlineData(1000, 100, 300)]
-		[InlineData(1000, 100, 400)]
-		public void TestRandomData(uint size, uint different, uint sizeofsketch)
+		[Fact]
+		public void TestSetGet()
 		{
-			Random random = new Random(42);
-
-
-			ComplexTests comtest = new ComplexTests();
-			var ketcher = new BasicSimpleSetSketcher(sizeofsketch, new Md5Simple());
-
-
-
-			Assert.True(comtest.TestSketcher(size, different, 42, (input) => ketcher.Toogle(input), (input) => ketcher.Toogle(input), () => ketcher.Decode().Data));
-
+			BitValueArray bitValueArray = new BitValueArray(100);
+			Random random = new Random(0);
+			for (int i = 0; i < 100; i++)
+			{
+				long value = random.Next();
+				bitValueArray.Set(i, value);
+				Assert.Equal(value, bitValueArray.Get(i));
+				bitValueArray.Set(i, 0);
+			}
 		}
-	}
-	*/
+		[Fact]
+		public void TestXor()
+		{
+			BitValueArray bitValueArray = new BitValueArray(100);
+			Random random = new Random(0);
+			for (int i = 0; i < 100; i++)
+			{
+				long value = random.Next();
+				bitValueArray.Set(i, value);
+				Assert.Equal(value, bitValueArray.Get(i));
+				bitValueArray.Set(i, value);
+			}
+		}
 	}
 }

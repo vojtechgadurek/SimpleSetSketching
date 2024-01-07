@@ -9,6 +9,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Utills\**" />
+	  <EmbeddedResource Remove="Utills\**" />
+	  <None Remove="Utills\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="murmurhash" Version="1.0.3" />
 		<PackageReference Include="System.Data.HashFunction.MurmurHash" Version="2.0.0" />
 	</ItemGroup>

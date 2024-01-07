@@ -69,5 +69,14 @@ namespace SimpleSetSketching
 			return i & (size - 1);
 		}
 
+		public struct FirstHashingFunction : IHashingFunction<int, long>
+		{
+			public long Hash(int value)
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+
 	}
 }

@@ -10,8 +10,8 @@ namespace SimpleSetSketching.Testing
 	{
 		TextReader _firstFile;
 		TextReader _secondFile;
-		FastaFileReader _firstReader;
-		FastaFileReader _secondReader;
+		FastaFileReader? _firstReader;
+		FastaFileReader? _secondReader;
 
 		public FastaFileComparer(TextReader firstFile, TextReader secondFile)
 		{
@@ -68,8 +68,8 @@ namespace SimpleSetSketching.Testing
 
 		public void Dispose()
 		{
-			_firstReader.Dispose();
-			_secondReader.Dispose();
+			if (_firstReader is not null) _firstReader.Dispose();
+			if (_secondReader is not null) _secondReader.Dispose();
 		}
 	}
 }
