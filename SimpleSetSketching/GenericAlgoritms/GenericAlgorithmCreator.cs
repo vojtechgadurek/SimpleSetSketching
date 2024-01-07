@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.GenericAlgoritms
 {
-	static class GenericAlgorithmCreator<T, TFirstHashingFunction, TSecondHashingFunction, TThirdHashingFunction> where T :
+	static class GenericAlgorithmCreator<T, TFirstHashingFunction, TSecondHashingFunction, TThirdHashingFunction>
 	{
-		static public T
 	}
 }
