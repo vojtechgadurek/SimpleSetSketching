@@ -10,12 +10,12 @@ namespace SimpleSetSketching.Tables
 	struct ArrayTable<TValue> : ITable<TValue> where TValue : struct, IValue
 	{
 		TValue[] _data;
-		public ArrayTable(int size)
+		public ArrayTable(uint size)
 		{
 			_data = new TValue[size];
 		}
 
-		public TValue Get(int index)
+		public TValue Get(uint index)
 		{
 			return _data[index];
 		}
@@ -25,12 +25,12 @@ namespace SimpleSetSketching.Tables
 			return _data.All(x => x.IsZero());
 		}
 
-		public int Length()
+		public uint Length()
 		{
-			return _data.Length;
+			return (uint)_data.Length;
 		}
 
-		public void Set(int index, TValue value)
+		public void Set(uint index, TValue value)
 		{
 			_data[index] = value;
 		}

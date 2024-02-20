@@ -2,9 +2,9 @@
 {
 	internal interface ITable<TValue> where TValue : struct
 	{
-		TValue Get(int index);
+		TValue Get(uint index);
 		bool IsEmpty();
-		int Length();
-		void Set(int index, TValue value);
+		uint Length();
+		void Set(uint index, TValue value);
 	}
 }

@@ -1,12 +1,14 @@
-﻿namespace SimpleSetSketching
+﻿using Microsoft.FSharp.Core;
+
+namespace SimpleSetSketching
 {
 	internal class GenericSimpleSetSketcher<TValue, TFirstHashingFunction, TSecondHashingFunction, TThirdHashingFunction, TTable, TSize>
 		where TValue : struct, IValue
-		where TFirstHashingFunction : struct, IHashingFunction<TValue, int>
-		where TSecondHashingFunction : struct, IHashingFunction<TValue, int>
-		where TThirdHashingFunction : struct, IHashingFunction<TValue, int>
+		where TFirstHashingFunction : struct, IHashingFunction<TValue, uint>
+		where TSecondHashingFunction : struct, IHashingFunction<TValue, uint>
+		where TThirdHashingFunction : struct, IHashingFunction<TValue, uint>
 		where TTable : struct, ITable<TValue>
-		where TSize : struct, IConstant<int>
+		where TSize : struct, IConstant<uint>
 	{
 		/// <summary>
 		/// Generic implementation of SimpleSetSketch algorithm
@@ -16,15 +18,19 @@
 		TSecondHashingFunction _secondHashingFunction;
 		TThirdHashingFunction _thirdHashingFunction;
 		int _shotdownMultiplicator = 10;
-		int _size;
+		readonly uint _size = DynamicConstantTypeCreator<uint>.GetValue(typeof(TSize));
 
-		public GenericSimpleSetSketcher(TTable table, TFirstHashingFunction firstHashingFunction, TSecondHashingFunction secondHashingFunction, TThirdHashingFunction thirdHashingFunction, TSize size)
+		public GenericSimpleSetSketcher(
+			TTable table,
+			TFirstHashingFunction firstHashingFunction,
+			TSecondHashingFunction secondHashingFunction,
+			TThirdHashingFunction thirdHashingFunction
+			)
 		{
 			_table = table;
 			_firstHashingFunction = firstHashingFunction;
 			_secondHashingFunction = secondHashingFunction;
 			_thirdHashingFunction = thirdHashingFunction;
-			_size = size.Get();
 		}
 
 		public void Toogle(TValue value)
@@ -33,7 +39,7 @@
 			_table.Set(_secondHashingFunction.Hash(value), value);
 			_table.Set(_thirdHashingFunction.Hash(value), value);
 		}
-		public bool LooksPure(int index)
+		public bool LooksPure(uint index)
 		{
 			TValue number = _table.Get(index);
 			if (number.IsZero())
@@ -58,7 +64,7 @@
 			return false;
 		}
 
-		void AddIfPure(int index, HashSet<int> pure)
+		void AddIfPure(uint index, HashSet<uint> pure)
 		{
 
 			if (LooksPure(index))
@@ -70,12 +76,12 @@
 		public HashSet<TValue>? TryDecode()
 		{
 			HashSet<TValue> ansver = new HashSet<TValue>();
-			HashSet<int> pure = new HashSet<int>();
-			for (int i = 0; i < _table.Length(); i++)
+			HashSet<uint> pure = new HashSet<uint>();
+			for (uint i = 0; i < _table.Length(); i++)
 			{
 				AddIfPure(i, pure);
 			}
-			int hardStop = _table.Length() * _shotdownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
+			int hardStop = (int)_table.Length() * _shotdownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
 			int rounds = 0;
 			while (pure.Count > 0)
 			{
@@ -84,7 +90,7 @@
 				{
 					return null;
 				}
-				HashSet<int> nextPure = new HashSet<int>();
+				HashSet<uint> nextPure = new HashSet<uint>();
 				foreach (var i in pure)
 				{
 					if (!LooksPure(i))

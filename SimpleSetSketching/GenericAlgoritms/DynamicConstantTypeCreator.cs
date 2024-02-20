@@ -14,6 +14,7 @@ namespace SimpleSetSketching
 	public static class DynamicConstantTypeCreator<T> where T : struct
 	{
 		static IDictionary<T, Type> _types = new Dictionary<T, Type>();
+		static IDictionary<Type, T> _values = new Dictionary<Type, T>();
 		static AssemblyName _assemblyName = new AssemblyName("DynamicAssembly");
 		static AssemblyBuilder _assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndCollect);
 		static ModuleBuilder _moduleBuilder = _assemblyBuilder.DefineDynamicModule("DynamicModule");
@@ -22,6 +23,11 @@ namespace SimpleSetSketching
 		{
 			if (!_types.ContainsKey(value)) CreateConstant($"DynamicConst-{typeof(T).Name}", value);
 			return _types[value];
+		}
+
+		public static T GetValue(Type type)
+		{
+			return _values[type];
 		}
 
 		static void CreateConstant(string name, T constantValue)
@@ -54,9 +60,9 @@ namespace SimpleSetSketching
 
 			Type dynamicType = typeBuilder.CreateType();
 			_types[constantValue] = dynamicType;
+			_values[dynamicType] = constantValue;
 		}
 	}
-
 
 
 }

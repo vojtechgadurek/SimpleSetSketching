@@ -127,7 +127,7 @@ namespace SimpleSetSketching
 		}
 		public HashSet<ulong>? Decode()
 		{
-			return StaticSimpleSetSketcher_v02.Decode(_data, _size, 1);
+			return StaticSimpleSetSketcher_v02.Decode(_data, _size, 1); //1 - constant
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -137,8 +137,8 @@ namespace SimpleSetSketching
 			{
 				ulong next = insert.Next();
 				if (next == 0) break;
-				SimpleSetSketchingFSharp.SimpleSetSketcher.testToogle(_data, next, _size - 1);
-				//StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
+				//SimpleSetSketchingFSharp.SimpleSetSketcher.testToogle(_data, next, _size - 1);
+				StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
 			}
 		}
 		public void Insert(SketchStream insert)

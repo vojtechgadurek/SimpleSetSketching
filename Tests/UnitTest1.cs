@@ -111,6 +111,7 @@ namespace Tests
 			var value = two.GetFields();
 			Assert.Equal(2u, two.GetField("value").GetValue(null));
 		}
+
 	}
 
 
