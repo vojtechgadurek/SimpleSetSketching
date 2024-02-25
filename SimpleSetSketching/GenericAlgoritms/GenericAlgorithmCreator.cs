@@ -9,9 +9,9 @@ namespace SimpleSetSketching.GenericAlgoritms
 {
 	static class GenericAlgorithmCreator<TValueType, TFirstHashingFunction, TSecondHashingFunction, TThirdHashingFunction, TTable>
 	where TValueType : struct
-	where TFirstHashingFunction : IHashingFunction<TValueType, ulong>
-	where TSecondHashingFunction : IHashingFunction<TValueType, ulong>
-	where TThirdHashingFunction : IHashingFunction<TValueType, ulong>
+	where TFirstHashingFunction : struct, IHashingFunction<TValueType, ulong>
+	where TSecondHashingFunction : struct, IHashingFunction<TValueType, ulong>
+	where TThirdHashingFunction : struct, IHashingFunction<TValueType, ulong>
 	{
 		public static (Type, object) Create(
 			uint size, TTable table,

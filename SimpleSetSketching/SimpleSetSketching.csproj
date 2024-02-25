@@ -1,26 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-
 	<ItemGroup>
-	  <Compile Remove="Utills\**" />
-	  <EmbeddedResource Remove="Utills\**" />
-	  <None Remove="Utills\**" />
+		<Compile Remove="Utills\**" />
+		<EmbeddedResource Remove="Utills\**" />
+		<None Remove="Utills\**" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="murmurhash" Version="1.0.3" />
 		<PackageReference Include="System.Data.HashFunction.MurmurHash" Version="2.0.0" />
 	</ItemGroup>
-
 	<ItemGroup>
-	  <ProjectReference Include="..\SimpleSetSketchingFSharp\SimpleSetSketchingFSharp.fsproj" />
+		<ProjectReference Include="..\SimpleSetSketchingFSharp\SimpleSetSketchingFSharp.fsproj" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<Folder Include="Utils\NewFolder\" />
+	</ItemGroup>
 </Project>

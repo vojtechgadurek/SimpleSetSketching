@@ -5,6 +5,8 @@ using SimpleSetSketching;
 using SimpleSetSketching.Data;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using SimpleSetSketching.Testing;
+using Microsoft.FSharp.Core;
+using System.Linq.Expressions;
 //fasta soubory .fa
 //> TCC  
 
@@ -114,34 +116,89 @@ namespace Tests
 
 	}
 
-
-	public class BitValueArrayTest
+	public class TestGenericSimpleSetSketcherCreator
 	{
 		[Fact]
-		public void TestSetGet()
+		public void TestSimpleCreation()
 		{
-			BitValueArray bitValueArray = new BitValueArray(100);
-			Random random = new Random(0);
-			for (int i = 0; i < 100; i++)
+		}
+
+
+		public class BitValueArrayTest
+		{
+			[Fact]
+			public void TestSetGet()
 			{
-				long value = random.Next();
-				bitValueArray.Set(i, value);
-				Assert.Equal(value, bitValueArray.Get(i));
-				bitValueArray.Set(i, 0);
+				BitValueArray bitValueArray = new BitValueArray(100);
+				Random random = new Random(0);
+				for (int i = 0; i < 100; i++)
+				{
+					long value = random.Next();
+					bitValueArray.Set(i, value);
+					Assert.Equal(value, bitValueArray.Get(i));
+					bitValueArray.Set(i, 0);
+				}
+			}
+			[Fact]
+			public void TestXor()
+			{
+				BitValueArray bitValueArray = new BitValueArray(100);
+				Random random = new Random(0);
+				for (int i = 0; i < 100; i++)
+				{
+					long value = random.Next();
+					bitValueArray.Set(i, value);
+					Assert.Equal(value, bitValueArray.Get(i));
+					bitValueArray.Set(i, value);
+				}
 			}
 		}
-		[Fact]
-		public void TestXor()
+
+		public class TestHashing
 		{
-			BitValueArray bitValueArray = new BitValueArray(100);
-			Random random = new Random(0);
-			for (int i = 0; i < 100; i++)
+			[Fact]
+			public void SimpleTest()
 			{
-				long value = random.Next();
-				bitValueArray.Set(i, value);
-				Assert.Equal(value, bitValueArray.Get(i));
-				bitValueArray.Set(i, value);
+				Random random = new Random(42);
+				for (int i = 0; i < 100; i++)
+				{
+					(ulong, uint) key = ((ulong)random.NextInt64(), (uint)random.Next());
+					ulong valueToBeHashed = (ulong)random.NextInt64();
+					var val = MultiplyShiftHashGenerator.CreateHashFunction(key.Item1, key.Item2).Compile()(valueToBeHashed);
+					var expected = MultiplyShiftHashGenerator.GetTrueOperation(key.Item1, key.Item2).Invoke(valueToBeHashed);
+					Assert.Equal(expected, val);
+
+				}
+			}
+
+			[Fact]
+			/// <summary>
+			/// Tests if <code>GetHashingFunctionApplier</code> returns correct function
+			public void TestHashBuffer()
+			{
+
+				ulong[] buffer = GenerateRandomULongArray.GenerateRandomULongArrayFunc(100, 42);
+				ulong[] expectedResult = new ulong[100];
+				ulong[] result = new ulong[100];
+
+				//Some function ulong -> ulong is needed, so we will use simple multiplication by 2
+				Expression<Func<ulong, ulong>> hash = (a) => 2 * a;
+
+				var expr = HashBuffer.GetHashingFunctionApplier(hash);
+				var expr_compiled = expr.Compile();
+				expr_compiled.Invoke(buffer, 100, result);
+
+
+				var hashCompiled = hash.Compile();
+				for (int i = 0; i < 100; i++)
+				{
+					expectedResult[i] = hashCompiled(buffer[i]);
+				}
+				Assert.Equal(expectedResult, result);
 			}
 		}
+
+
+
 	}
 }
