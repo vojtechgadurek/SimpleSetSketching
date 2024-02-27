@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestPlatform.Utilities;
 using SimpleSetSketching.Testing;
 using Microsoft.FSharp.Core;
 using System.Linq.Expressions;
+using SimpleSetSketching.Values;
 //fasta soubory .fa
 //> TCC  
 
@@ -102,6 +103,74 @@ namespace Tests
 
 	public class PerformanceTests
 	{
+	}
+
+	public class TestExpressionTrees
+	{
+		[Fact]
+		public void TestIterator()
+		{
+			int x = 0;
+			void Add<UlongValue>(UlongValue _)
+			{
+				x++;
+			}
+			// var Iterator = HashBuffer.Iterator<UlongValue, ArrayTable<UlongValue>>(new ArrayTable<UlongValue>(), y => );
+		}
+		[Fact]
+		public void TestWhile()
+		{
+			var parameterTestValue = Expression.Parameter(typeof(int));
+			var block = Expression.Block(
+				new ParameterExpression[] { parameterTestValue },
+				new Expression[] {
+					Expression.Assign(parameterTestValue, Expression.Constant(0)),
+					HashBuffer.While(
+						Expression.LessThan(parameterTestValue, Expression.Constant(10)),
+						Expression.Assign(parameterTestValue, Expression.Add(parameterTestValue, Expression.Constant(1)))
+					),
+					parameterTestValue
+				}
+				);
+
+			var lambda = Expression.Lambda<Func<int>>(block);
+			Func<int> compiled = lambda.Compile();
+			int result = compiled.Invoke();
+
+		}
+		[Fact]
+		public void TestForEach()
+		{
+			var parameterTestValue = Expression.Parameter(typeof(ulong), "ansver");
+			ArrayTable<UlongValue> arrayTable = new ArrayTable<UlongValue>(100);
+
+			ulong expectedResult = 0;
+
+			for (uint i = 0; i < 100; i++)
+			{
+				arrayTable.Set(i, new UlongValue(i));
+				expectedResult += i;
+			}
+			ParameterExpression variable = Expression.Variable(typeof(UlongValue), "i");
+			Expression block = Expression.Block(
+
+				new ParameterExpression[] { parameterTestValue, variable },
+				new Expression[]
+				{
+					Expression.Assign(parameterTestValue, Expression.Constant(0UL)),
+					HashBuffer.ForEach<ArrayTable<UlongValue>, UlongValue>(
+						arrayTable,
+						Expression.AddAssign(parameterTestValue,Expression.Field(variable, "Value")),
+						variable
+						),
+					parameterTestValue
+				});
+			var lambda = Expression.Lambda<Func<ulong>>(block);
+			Func<ulong> compiled = lambda.Compile();
+			ulong result = compiled.Invoke();
+			Assert.Equal(expectedResult, result);
+
+		}
 	}
 
 	public class TestDynamicConstantTypeCreator

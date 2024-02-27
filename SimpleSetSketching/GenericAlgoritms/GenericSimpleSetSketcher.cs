@@ -1,7 +1,9 @@
 ﻿using Microsoft.FSharp.Core;
+using SimpleSetSketching.Tables;
 
 namespace SimpleSetSketching
 {
+	/*
 	internal class GenericSimpleSetSketcher<TValue, TFirstHashingFunction, TSecondHashingFunction, TThirdHashingFunction, TTable, TSize>
 		where TValue : struct, IValue
 		where TFirstHashingFunction : struct, IHashingFunction<TValue, uint>
@@ -42,7 +44,7 @@ namespace SimpleSetSketching
 		public bool LooksPure(uint index)
 		{
 			TValue number = _table.Get(index);
-			if (number.IsZero())
+			if (number.IsNull())
 			{
 				return false;
 			}
@@ -123,4 +125,6 @@ namespace SimpleSetSketching
 		}
 
 	}
+	*/
 }
+

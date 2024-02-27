@@ -1,13 +1,14 @@
-﻿using SimpleSetSketching;
+﻿using SimpleSetSketching.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleSetSketching.Tables
+namespace SimpleSetSketching
 {
-	struct ArrayTable<TValue> : ITable<TValue> where TValue : struct, IValue
+	public struct ArrayTable<TValue> : ITable<TValue> where TValue : struct, IValue<TValue>
 	{
 		TValue[] _data;
 		public ArrayTable(uint size)
@@ -22,7 +23,7 @@ namespace SimpleSetSketching.Tables
 
 		public bool IsEmpty()
 		{
-			return _data.All(x => x.IsZero());
+			return _data.All(x => x.IsNull());
 		}
 
 		public uint Length()
@@ -33,6 +34,11 @@ namespace SimpleSetSketching.Tables
 		public void Set(uint index, TValue value)
 		{
 			_data[index] = value;
+		}
+
+		public void Xor(uint index, TValue value)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

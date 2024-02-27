@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using SimpleSetSketching.Tables;
 
 namespace SimpleSetSketching
 {
@@ -80,40 +81,29 @@ namespace SimpleSetSketching
 		}
 
 
-		public static Expression<Action<TValue[], int>> GetToogleBufferToTableExpressionTree<TTable, TValue>(
+		public static Expression<Action<TValue[]>> GetToogleAllElementsInBufferToTable<TTable, TValue>(
 			IEnumerable<Expression<Func<TValue, ulong>>> hashingFunctions,
 			TTable table
 			)
+			where TTable : ITable<TValue>
+			where TValue : struct
 		{
+			//Tohle je stresne rozbite
+			//Chce is to rozmyslet architekturu nad tim
+			//Jakoze jak chci aby vypadali buffery?
+			//TODO: Chci rozdelit tuhle tridu na utils a neutily
+			//Prejmenovat jednotlive metody
+			//Zamyslet se nad jak to napsat lepe
+			//Dodelat testy
 			var TableParam = Expression.Parameter(typeof(TTable), "table");
 			var valuesToAddParam = Expression.Parameter(typeof(TValue[]), "value");
-			var sizeParam = Expression.Parameter(typeof(int), "size");
 
 			var breakLabel = Expression.Label("LoopBreak");
 
+			var expression = ForEach<TTable, TValue>(table, GetMultiToogleToTable(hashingFunctions, table), valuesToAddParam);
 
-			var expression = Expression.Block(
-				new Expression[]
-				{
-					Expression.Loop(
-						Expression.Block(
-							Expression.Assign(
-										sizeParam,
-										Expression.Subtract(sizeParam, Expression.Constant(1))
-									),
-							Expression.IfThenElse(
-								Expression.LessThan(sizeParam, Expression.Constant(0)),
-								Expression.Break(breakLabel),
-								Expression.Invoke(GetMultiToogleToTable(hashingFunctions, table), Expression.ArrayAccess(valuesToAddParam, sizeParam))
+			var ansver = Expression.Lambda<Action<TValue[]>>(expression, valuesToAddParam);
 
-								)
-							),
-						breakLabel
-						)
-				}
-			);
-
-			var ansver = Expression.Lambda<Action<TValue[], int>>(expression, valuesToAddParam, sizeParam);
 			return ansver;
 		}
 
@@ -176,6 +166,44 @@ namespace SimpleSetSketching
 			return expression;
 		}
 
+
+		public static Expression While(Expression condition, Expression action)
+		{
+			var breakLabel = Expression.Label("LoopBreak");
+			Expression expression = Expression.Loop(
+				Expression.IfThenElse(
+					condition,
+					action,
+					Expression.Break(breakLabel)
+					),
+				breakLabel
+				);
+			return expression;
+		}
+
+		public static Expression For(Expression condition, Expression action, Expression increment)
+		{
+			Expression innerAction = Expression.Block(action, increment);
+			return While(condition, innerAction);
+		}
+
+		public static Expression ForEach<TTable, TValue>(TTable table, Expression action, ParameterExpression item)
+			where TTable : ITable<TValue>
+			where TValue : struct
+		{
+			var tableConst = Expression.Constant(table);
+			var i = Expression.Parameter(typeof(uint), "i");
+			var forExpression = For(
+				Expression.LessThan(i, Expression.Constant(table.Length())),
+				Expression.Block(
+					Expression.Assign(item, Expression.Call(tableConst, typeof(TTable).GetMethod("Get"), i)),
+					action
+					),
+				Expression.AddAssign(i, Expression.Constant(1U))
+				);
+			return Expression.Block(new ParameterExpression[] { i }, forExpression);
+		}
+
 		public static Expression<Func<HashSet<ulong>>> GetInitializer<TTable, TValue>
 			(TTable table, Expression<Action<ulong, HashSet<ulong>>> AddIfPureExpression)
 			where TTable : ITable<TValue>
@@ -185,12 +213,8 @@ namespace SimpleSetSketching
 			var HashSetVar = Expression.Variable(typeof(HashSet<ulong>), "HashSet");
 			var HashSetNew = Expression.New(typeof(HashSet<ulong>));
 			var HashSetAssign = Expression.Assign(HashSetVar, HashSetNew);
-			var action = Expression.Lambda<Action<int>>();
 
-			var Range = RangeFromTo(0, (int)table.Length(), AddIfPureExpression);
-			var ansver = Expression.Lambda<Func<HashSet<ulong>>>(expression);
-			return ansver;
-
+			throw new NotImplementedException();
 
 		}
 	}

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
-	interface IValue
+	public interface IValue<T> : IComparable<T> where T : struct
 	{
-		bool IsZero();
-		bool IsEqual(IValue other);
+		bool IsNull();
 		int BitLength();
 	}
 }
