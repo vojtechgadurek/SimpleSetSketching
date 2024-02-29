@@ -1,4 +1,5 @@
 ﻿using SimpleSetSketching.New.StreamProviders.DNA.KMerCreators;
+using SimpleSetSketching.New.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA
 		{
 			(_lenghtOfKMer, _lenght) = ParseFirstLineData(reader.ReadLine());
 			_reader = reader;
+
 
 			_buffer = new Buffer<char>(bufferSize, new char[bufferSize], 0);
 			_charBuffer = new UnsafeFixedSizeQueue<char>(_lenghtOfKMer);

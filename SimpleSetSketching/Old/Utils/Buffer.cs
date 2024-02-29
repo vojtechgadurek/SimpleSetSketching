@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace SimpleSetSketching
 {
 
+	/*
 	internal class Buffer<T> where T : struct
 	{
 		private readonly T[] _buffer;
@@ -35,6 +36,7 @@ namespace SimpleSetSketching
 			_nItemsRecieved = _fillBufferDelegate(_buffer, 0, _buffer.Length);
 		}
 	}
+	*/
 	public class UnsafeFixedSizeQueue<T> where T : struct
 	{/// <summary>
 	 /// This class should be as quick as possible as such it is not safe.
