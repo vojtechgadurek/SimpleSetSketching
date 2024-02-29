@@ -34,7 +34,20 @@ namespace SimpleSetSketching.New.StreamProviders.DNA
 			return _value;
 		}
 	}
-	public record struct KMerWithComplement(KMer KMer, KMer Complement);
+	public record struct KMerWithComplement(KMer KMer, KMer Complement)
+	{
+		public KMer GetCanonical()
+		{
+			if (KMer.GetBinaryRepresentation() < Complement.GetBinaryRepresentation())
+			{
+				return KMer;
+			}
+			else
+			{
+				return Complement;
+			}
+		}
+	};
 }
 
 

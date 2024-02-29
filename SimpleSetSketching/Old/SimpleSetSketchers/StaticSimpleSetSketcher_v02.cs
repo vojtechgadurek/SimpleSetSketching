@@ -28,7 +28,7 @@ namespace SimpleSetSketching
 		{
 			var value = data[index];
 			/*
-			return ((data[index] != 0)) && (FirstHash(value, _lengthOfKMer) == index || SecondHash(value, _lengthOfKMer) == index || ThirdHash(value, _lengthOfKMer) == index);
+			return ((data[index] != 0)) && (FirstHash(value, _KMerLength) == index || SecondHash(value, _KMerLength) == index || ThirdHash(value, _KMerLength) == index);
 			*/
 			if (value == 0)
 			{
@@ -197,7 +197,7 @@ public class ParallelSetSketcher : ISketcher
 			{
 				_streams[i] = new SketchStream(insert, 1024);
 				//Old ->
-				//THIS IS PROBLEMATIC - we expect buffer _lengthOfKMer to allow sizes up to 1024, IT NEEDS TO BE REDONE
+				//THIS IS PROBLEMATIC - we expect buffer _KMerLength to allow sizes up to 1024, IT NEEDS TO BE REDONE
 				//<-End 
 				//This should work correctly 10.2.2023
 			}

@@ -9,7 +9,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 {
 	public class KMerCreator
 	{
-		readonly int _lengthOfKMer;
+		readonly int _KMerLength;
 		readonly ulong _lengthMask;
 		const int _numberOfBitsInUlong = 64;
 		const int _maxLength = _numberOfBitsInUlong / 2 - 1;
@@ -20,12 +20,14 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 
 		public KMerCreator(int lengthOfKMer)
 		{
-			_lengthOfKMer = lengthOfKMer;
+			_KMerLength = lengthOfKMer;
 			int numberOfBitsUsed = lengthOfKMer * 2 + 2;
 			if (lengthOfKMer > _maxLength) throw new ArgumentException($"{lengthOfKMer} is over limit 31");
 			_lengthMask = (1UL << (numberOfBitsUsed + 1)) - 1 & _removeHeaderMask;
 			_firstSymbolMask = (11UL << (numberOfBitsUsed - 2));
 		}
+
+		public KMerWithComplement EmptyKMer => new KMerWithComplement(new KMer(_headerValue), new KMer(AddHeader(RemoveHeader(~0ul))));
 
 		public KMerWithComplement PushSymbolIn(KMerWithComplement kMerWithComplement, Symbol symbol)
 		{
@@ -44,7 +46,22 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			value = value ^ 0b11;
 			return (Symbol)value;
 		}
-
+		public Symbol TranslateCharToSymbol(char c)
+		{
+			switch (c)
+			{
+				case 'A':
+					return Symbol.A;
+				case 'C':
+					return Symbol.C;
+				case 'G':
+					return Symbol.G;
+				case 'T':
+					return Symbol.T;
+				default:
+					throw new InvalidEnumArgumentException();
+			}
+		}
 		public char TranslateSymbolToChar(Symbol symbol)
 		{
 			switch (symbol)
@@ -89,6 +106,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			value = RemoveHeader(value);
 			value = value << 2;
 			value = AddHeader(value);
+			value &= _lengthMask;
 			return value;
 		}
 
@@ -97,6 +115,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			value = RemoveHeader(value);
 			value = value >> 2;
 			value = AddHeader(value);
+			value &= _lengthMask;
 			return value;
 		}
 
@@ -118,7 +137,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			StringBuilder stringBuilder = new StringBuilder();
 			ulong mask = 0b11;
 			ulong value = kMer.GetBinaryRepresentation();
-			for (int i = 0; i < _lengthOfKMer; i++)
+			for (int i = 0; i < _KMerLength; i++)
 			{
 				value = value >> 2;
 				Symbol symbol = (Symbol)(value & mask);

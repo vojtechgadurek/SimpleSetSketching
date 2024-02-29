@@ -6,5 +6,6 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.StreamProviders
 {
-	public record struct TruncatedArray<TValue>(uint size, TValue[] array);
+	public record struct TruncatedArray<TValue>(int Size, TValue[] Array);
+	public record struct Buffer<TValue>(int Size, TValue[] Array, int CurrentOffset);
 }

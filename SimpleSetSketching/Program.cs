@@ -30,7 +30,7 @@ public class Program
 		int numberOfRounds = 10;
 
 		/*
-		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_lengthOfKMer * 1.4), numberOfRounds), numberOfRounds, _lengthOfKMer * 100, _lengthOfKMer, new Random(42));
+		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_KMerLength * 1.4), numberOfRounds), numberOfRounds, _KMerLength * 100, _KMerLength, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 		*/
@@ -40,7 +40,7 @@ public class Program
 
 		/*
 		var ansver = TestingFramework.TestMultipleDecodings(
-			TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_lengthOfKMer * 1.4), numberOfRounds),
+			TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_KMerLength * 1.4), numberOfRounds),
 			TestingFramework.GetFastaFileDataProvider(NamesToFastaFiles.covid11, NamesToFastaFiles.covid12,
 			numberOfRounds)
 			);
@@ -59,23 +59,23 @@ public class Program
 
 
 		/*
-		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_lengthOfKMer * 1.4), numberOfRounds), numberOfRounds, _lengthOfKMer * 10, _lengthOfKMer, new Random(42));
+		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleSketcher_v02_Provider((ulong)(_KMerLength * 1.4), numberOfRounds), numberOfRounds, _KMerLength * 10, _KMerLength, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 
 		/*
-		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleParrallerSketcherProvider((ulong)(_lengthOfKMer * 1.4), numberOfRounds, 4), numberOfRounds, _lengthOfKMer * 1000, _lengthOfKMer, new Random(42));
+		var ansver = TestingFramework.TestWithRandomData(TestingFramework.GetSimpleParrallerSketcherProvider((ulong)(_KMerLength * 1.4), numberOfRounds, 4), numberOfRounds, _KMerLength * 1000, _KMerLength, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 
 
 		/*
-		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(_lengthOfKMer * 1.4), numberOfRounds, new QuickHashing()), numberOfRounds, _lengthOfKMer * 10, _lengthOfKMer, new Random(42));
+		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(_KMerLength * 1.4), numberOfRounds, new QuickHashing()), numberOfRounds, _KMerLength * 10, _KMerLength, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 		*/
 		/*
-		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(_lengthOfKMer * 1.4), numberOfRounds, new Md5Simple()), numberOfRounds, _lengthOfKMer * 10, _lengthOfKMer, new Random(42));
+		ansver = TestingFramework.TestWithRandomData(TestingFramework.GetBasicSketcherProvider((ulong)(_KMerLength * 1.4), numberOfRounds, new Md5Simple()), numberOfRounds, _KMerLength * 10, _KMerLength, new Random(42));
 		Console.WriteLine($"Time used: {ansver.Results.Sum(x => x.Time.TotalMilliseconds)} ms");
 		Console.WriteLine($"Ok: {ansver.Results.Count(x => x.Success)}, all {ansver.Results.Count()}");
 		*/

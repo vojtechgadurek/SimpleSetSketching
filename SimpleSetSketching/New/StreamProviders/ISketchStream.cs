@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.StreamProviders
 {
-	public interface ISketchStreamProvider<TValue>
+	public interface ISketchStream<TValue>
 	{
 		TruncatedArray<TValue> FillBuffer(TValue[] buffer);
 		void Dispose();
