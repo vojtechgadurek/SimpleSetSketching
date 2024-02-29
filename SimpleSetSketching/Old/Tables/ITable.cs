@@ -1,4 +1,4 @@
-﻿namespace SimpleSetSketching.Tables
+﻿namespace SimpleSetSketching
 {
 	public interface ITable<TValue> where TValue : struct
 	{

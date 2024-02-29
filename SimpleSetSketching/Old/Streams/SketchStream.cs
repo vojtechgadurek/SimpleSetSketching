@@ -20,7 +20,7 @@ namespace SimpleSetSketching
 			buffer = new ulong[bufferSize];
 		}
 		/// <summary>
-		/// If the stream is empty, returns default(T)
+		/// If the stream is empty, returns default(TValue)
 		/// </summary>
 		/// <returns></returns>
 		public ulong Next()

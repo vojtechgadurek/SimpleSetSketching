@@ -125,7 +125,7 @@ namespace Tests
 				new ParameterExpression[] { parameterTestValue },
 				new Expression[] {
 					Expression.Assign(parameterTestValue, Expression.Constant(0)),
-					HashBuffer.While(
+					ExpressionTreesIterators.While(
 						Expression.LessThan(parameterTestValue, Expression.Constant(10)),
 						Expression.Assign(parameterTestValue, Expression.Add(parameterTestValue, Expression.Constant(1)))
 					),
@@ -152,22 +152,23 @@ namespace Tests
 				expectedResult += i;
 			}
 			ParameterExpression variable = Expression.Variable(typeof(UlongValue), "i");
+			ParameterExpression table = Expression.Parameter(typeof(ArrayTable<UlongValue>));
 			Expression block = Expression.Block(
 
 				new ParameterExpression[] { parameterTestValue, variable },
 				new Expression[]
 				{
 					Expression.Assign(parameterTestValue, Expression.Constant(0UL)),
-					HashBuffer.ForEach<ArrayTable<UlongValue>, UlongValue>(
-						arrayTable,
+					ExpressionTreesIterators.ForEach<ArrayTable<UlongValue>, UlongValue>(
+						table,
 						Expression.AddAssign(parameterTestValue,Expression.Field(variable, "Value")),
 						variable
 						),
 					parameterTestValue
 				});
-			var lambda = Expression.Lambda<Func<ulong>>(block);
-			Func<ulong> compiled = lambda.Compile();
-			ulong result = compiled.Invoke();
+			var lambda = Expression.Lambda<Func<ArrayTable<UlongValue>, ulong>>(block, table);
+			var compiled = lambda.Compile();
+			ulong result = compiled.Invoke(arrayTable);
 			Assert.Equal(expectedResult, result);
 
 		}

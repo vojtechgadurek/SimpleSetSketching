@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
+
 	internal class Buffer<T> where T : struct
 	{
 		private readonly T[] _buffer;
@@ -36,7 +38,7 @@ namespace SimpleSetSketching
 	public class UnsafeFixedSizeQueue<T> where T : struct
 	{/// <summary>
 	 /// This class should be as quick as possible as such it is not safe.
-	 /// It gurantees that up to size given it will work as normal queue, otherwise behavior is UNDEFINED and you SHOULD NOT depend on it.
+	 /// It gurantees that up to _lengthOfKMer given it will work as normal queue, otherwise behavior is UNDEFINED and you SHOULD NOT depend on it.
 	 /// </summary>
 		T?[]? _queue;
 		int _head = 0;

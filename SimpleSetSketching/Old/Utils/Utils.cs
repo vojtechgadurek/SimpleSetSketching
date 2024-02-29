@@ -6,8 +6,5 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching
 {
-	public class Utils
-	{
-
-	}
+	
 }

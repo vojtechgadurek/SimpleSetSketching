@@ -1,5 +1,4 @@
 ﻿using Microsoft.FSharp.Core;
-using SimpleSetSketching.Tables;
 
 namespace SimpleSetSketching
 {

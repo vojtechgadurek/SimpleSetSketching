@@ -1,5 +1,4 @@
-﻿using SimpleSetSketching.Tables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -14,6 +13,10 @@ namespace SimpleSetSketching
 		public ArrayTable(uint size)
 		{
 			_data = new TValue[size];
+		}
+		public ArrayTable(TValue[] data)
+		{
+			_data = data;
 		}
 
 		public TValue Get(uint index)
