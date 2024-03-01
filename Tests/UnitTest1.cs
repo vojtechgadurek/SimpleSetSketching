@@ -161,7 +161,7 @@ namespace Tests
 					Expression.Assign(parameterTestValue, Expression.Constant(0UL)),
 					ExpressionTreesIterators.ForEach<ArrayTable<UlongValue>, UlongValue>(
 						table,
-						Expression.AddAssign(parameterTestValue,Expression.Field(variable, "Value")),
+						Expression.AddAssign(parameterTestValue,Expression.Field(variable, "ValueType")),
 						variable
 						),
 					parameterTestValue

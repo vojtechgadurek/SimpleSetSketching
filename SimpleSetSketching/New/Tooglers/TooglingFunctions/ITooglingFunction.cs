@@ -10,6 +10,6 @@ namespace SimpleSetSketching.New.Tooglers.TooglingFunctions
 {
 	public interface ITooglingFunction
 	{
-		public ITable<ulong> ToogleStreamToTableruncatedArray(TruncatedArray<ulong> buffer, ITable<ulong> toogleTo);
+		public ITable<ulong> ToogleStreamToTableTruncatedArray(TruncatedArray<ulong> buffer, ITable<ulong> toogleTo);
 	}
 }

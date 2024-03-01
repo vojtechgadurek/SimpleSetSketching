@@ -16,14 +16,14 @@ namespace SimpleSetSketching.New.Tooglers
 		{
 			_bufferSize = bufferSize;
 		}
-		public ITable<ulong> ToogleStreamToTable(Func<TruncatedArray<ulong>, ITable<ulong>, ITable<ulong>> tooglingFunction, ISketchStream<ulong> stream, ITable<ulong> table)
+		public ITable<ulong> ToogleStreamToTable(Action<TruncatedArray<ulong>, ITable<ulong>> tooglingFunction, ISketchStream<ulong> stream, ITable<ulong> table)
 		{
 			ulong[] buffer = new ulong[_bufferSize];
 			while (true)
 			{
 				var truncatedArray = stream.FillBuffer(buffer);
 				if (truncatedArray.Size <= 0) break;
-				table = tooglingFunction.Invoke(truncatedArray, table);
+				tooglingFunction.Invoke(truncatedArray, table);
 			}
 			return table;
 		}

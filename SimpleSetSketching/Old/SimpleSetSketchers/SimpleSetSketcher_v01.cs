@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
- 
+
 
 
 namespace SimpleSetSketching.SimpleSetSketchers
@@ -49,7 +49,7 @@ namespace SimpleSetSketching.SimpleSetSketchers
 		{
 			HashSet<ulong> ansver = new HashSet<ulong>();
 			HashSet<ulong> pure = new HashSet<ulong>();
-			//Copydata allow Decode to be non destructive
+			//Copydata allow Decoder to be non destructive
 			ulong[] copydata = (ulong[])this._data.Clone();
 			for (ulong i = 0; i < _size; i++)
 			{

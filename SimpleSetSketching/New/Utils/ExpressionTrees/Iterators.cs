@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.Utils.ExpressionTrees
 {
-	public static class ExpressionTreesIterators
+	public static class Iterators
 	{
-
 		public static Expression For(Expression condition, Expression action, Expression increment)
 		{
 			Expression innerAction = Expression.Block(action, increment);
 			return While(condition, innerAction);
 		}
+
 		public static Expression ForEach<TTable, TValue>(ParameterExpression array, Expression action, ParameterExpression item, Expression<Func<int, TValue>> arrayAccess)
 			where TTable : ITable<TValue>
 			where TValue : struct

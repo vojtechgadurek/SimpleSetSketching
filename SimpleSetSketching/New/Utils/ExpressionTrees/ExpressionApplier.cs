@@ -11,7 +11,7 @@ namespace SimpleSetSketching.New.Utils.ExpressionTrees
 	public static class ExpressionApplier
 	{
 		public record struct TableWithValue<TTable, TValue>(TTable Table, TValue Value);
-		public static Expression<Action<TParameters>> GetMultipleActionsApplier<TParameters>(IEnumerable<Expression<Action<TParameters>>> actions)
+		public static Expression<Action<TParameters>> ActionMerger<TParameters>(IEnumerable<Expression<Action<TParameters>>> actions)
 		{
 			var param = Expression.Parameter(typeof(TParameters), "param");
 			var actionsList = actions.Select(a => Expression.Invoke(a, param));
