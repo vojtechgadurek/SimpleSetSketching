@@ -48,9 +48,9 @@ namespace SimpleSetSketching.New.StreamProviders.DNA
 			var splited = header.Split(' ');
 			if (splited is null) throw new ArgumentException("Header is not in correct format");
 
-			int KMerLength = int.Parse(splited[2].Split('=')[1]);
+			int kMerLength = int.Parse(splited[2].Split('=')[1]);
 			uint length = uint.Parse(splited[1].Split('=')[1]);
-			return (KMerLength, length);
+			return (kMerLength, length);
 
 		}
 

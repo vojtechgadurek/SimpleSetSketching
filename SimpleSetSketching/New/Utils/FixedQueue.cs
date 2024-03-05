@@ -9,7 +9,7 @@ namespace SimpleSetSketching.New.Utils
 	public class UnsafeFixedSizeQueue<T> where T : struct
 	{/// <summary>
 	 /// This class should be as quick as possible as such it is not safe.
-	 /// It gurantees that up to _KMerLength given it will work as normal queue, otherwise behavior is UNDEFINED and you SHOULD NOT depend on it.
+	 /// It gurantees that up to KMerLength given it will work as normal queue, otherwise behavior is UNDEFINED and you SHOULD NOT depend on it.
 	 /// </summary>
 		readonly T?[] _queue;
 		int _head = 0;

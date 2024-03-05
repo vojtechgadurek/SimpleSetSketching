@@ -1,4 +1,3 @@
 ﻿namespace SimpleSetSketchingFSharp
 
-module SimpleSetSketcher =
     

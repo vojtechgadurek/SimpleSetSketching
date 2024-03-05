@@ -9,7 +9,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 {
 	public class KMerCreator
 	{
-		readonly int _KMerLength;
+		readonly public int KMerLength;
 		readonly ulong _lengthMask;
 		const int _numberOfBitsInUlong = 64;
 		const int _maxLength = _numberOfBitsInUlong / 2 - 1;
@@ -17,14 +17,14 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 		const ulong _removeHeaderMask = ~0b11UL;
 		const ulong _lastSymbolMask = ~0b1100UL;
 		readonly ulong _firstSymbolMask;
-
+		//Default symbol is represented as 00 and currently is mapped to A
 		public KMerCreator(int lengthOfKMer)
 		{
-			_KMerLength = lengthOfKMer;
+			KMerLength = lengthOfKMer;
 			int numberOfBitsUsed = lengthOfKMer * 2 + 2;
 			if (lengthOfKMer > _maxLength) throw new ArgumentException($"{lengthOfKMer} is over limit 31");
 			_lengthMask = (1UL << (numberOfBitsUsed + 1)) - 1 & _removeHeaderMask;
-			_firstSymbolMask = (11UL << (numberOfBitsUsed - 2));
+			_firstSymbolMask = (11UL << numberOfBitsUsed);
 		}
 
 		public KMerWithComplement EmptyKMer => new KMerWithComplement(new KMer(_headerValue), new KMer(AddHeader(RemoveHeader(~0ul))));
@@ -79,7 +79,20 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			}
 		}
 
+		public KMer InitiliazeKMerFromSymbolArray(Symbol[] symbols)
+		{
+			if (symbols.Length != KMerLength)
+			{
+				throw new ArgumentException("Length of symbols array is not equal to KMerLength");
+			}
+			ulong value = 0;
+			for (int i = 0; i < symbols.Length; i++)
+			{
+				value |= GetDefaultValuesWithSymbolInPlace(symbols[i], i);
+			}
+			return new KMer(value);
 
+		}
 		public ulong RemoveHeader(ulong value)
 		{
 			return value & _removeHeaderMask;
@@ -87,6 +100,35 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 		public ulong AddHeader(ulong value)
 		{
 			return value | _headerValue;
+		}
+
+		public ulong GetMask(int index)
+		{
+			return 0b11UL << ((index + 1) * 2);
+		}
+
+		public ulong GetDefaultValuesWithSymbolInPlace(Symbol symbol, int index)
+		{
+			ulong value = (ulong)symbol << ((index + 1) * 2);
+			return value;
+		}
+
+		public ulong GetInverseMask(ulong mask)
+		{
+			return ~mask;
+		}
+
+		public KMer SetNthSymbolToDefault(KMer kMer, int index)
+		{
+			ulong value = kMer.GetBinaryRepresentation();
+			ulong mask = GetInverseMask(GetMask(index));
+			return new KMer(value & mask);
+		}
+		public KMer SetNthSymbol(KMer kMer, int index, Symbol symbol)
+		{
+
+			ulong value = (ulong)symbol << ((index + 1) * 2);
+			return new KMer(SetNthSymbolToDefault(kMer, index).GetBinaryRepresentation() | value);
 		}
 		public ulong ChangeFirstSymbol(ulong value, Symbol symbol)
 		{
@@ -137,7 +179,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			StringBuilder stringBuilder = new StringBuilder();
 			ulong mask = 0b11;
 			ulong value = kMer.GetBinaryRepresentation();
-			for (int i = 0; i < _KMerLength; i++)
+			for (int i = 0; i < KMerLength; i++)
 			{
 				value = value >> 2;
 				Symbol symbol = (Symbol)(value & mask);

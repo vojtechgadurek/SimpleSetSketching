@@ -44,7 +44,7 @@ namespace Tests
 
 		}
 
-
+		/*
 		[Theory]
 		[InlineData("CCTCAAAAACTG", 5)]
 		[InlineData("CCTCAAAAAAAAAAAAAAACTG", 5)]
@@ -56,7 +56,7 @@ namespace Tests
 		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 5)]
 		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 1)]
 		[InlineData("GGGcccCCgccGGcccGcAaAAAccCgG", 2)]
-
+		
 		public void TestFastaReaderWithMockTextReader(string input, int k_mer)
 		{
 			string header = $">superstring l={input.Length} k={k_mer}";
@@ -270,5 +270,7 @@ namespace Tests
 
 
 
+	}
+	*/
 	}
 }

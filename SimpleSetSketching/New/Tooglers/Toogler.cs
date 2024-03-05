@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.Tooglers
 {
-	public class Toogler : IToogler
+	public class Toogler
 	{
 		int _bufferSize;
 		public Toogler(int bufferSize)
 		{
 			_bufferSize = bufferSize;
 		}
-		public ITable<ulong> ToogleStreamToTable(Action<TruncatedArray<ulong>, ITable<ulong>> tooglingFunction, ISketchStream<ulong> stream, ITable<ulong> table)
+		public TTable ToogleStreamToTable<TTable>(Action<TruncatedArray<ulong>, TTable> tooglingFunction, ISketchStream<ulong> stream, TTable table)
 		{
 			ulong[] buffer = new ulong[_bufferSize];
 			while (true)

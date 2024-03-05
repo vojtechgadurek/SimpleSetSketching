@@ -12,7 +12,7 @@ namespace SimpleSetSketching.New.Hashing
 	{
 		public static Expression<Func<ulong, ulong>> CreateHashFunction(ulong multiply, ulong size)
 		{
-			// (value * multiply) >> (64 - _KMerLength) % _KMerLength
+			// (value * multiply) >> (64 - KMerLength) % KMerLength
 			var multiplyConstant = Expression.Constant(multiply);
 			var sizeConstant = Expression.Constant(size);
 			var parameterValue = Expression.Parameter(typeof(ulong), "value");

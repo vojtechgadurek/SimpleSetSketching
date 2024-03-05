@@ -10,6 +10,6 @@ namespace SimpleSetSketching.New.Hashers
 {
 	public interface IToogler
 	{
-		ITable<ulong> ToogleStreamToTable(Func<TruncatedArray<ulong>, ITable<ulong>, ITable<ulong>> tooglingFunction, ISketchStream<ulong> stream, ITable<ulong> table);
+		ITable<ulong> ToogleStreamToTable(Action<TruncatedArray<ulong>, ITable<ulong>> tooglingFunction, ISketchStream<ulong> stream, ITable<ulong> table);
 	}
 }

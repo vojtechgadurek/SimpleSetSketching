@@ -15,9 +15,7 @@ namespace SimpleSetSketching.New.Utils.ExpressionTrees
 			return While(condition, innerAction);
 		}
 
-		public static Expression ForEach<TTable, TValue>(ParameterExpression array, Expression action, ParameterExpression item, Expression<Func<int, TValue>> arrayAccess)
-			where TTable : ITable<TValue>
-			where TValue : struct
+		public static Expression ForEach<TTable, TValue>(Expression array, Expression action, Expression item)
 		{
 			var i = Expression.Parameter(typeof(uint), "i");
 			var length = Expression.Parameter(typeof(uint), "length");
@@ -26,7 +24,7 @@ namespace SimpleSetSketching.New.Utils.ExpressionTrees
 			var forExpression = For(
 				Expression.LessThan(i, length),
 				Expression.Block(
-					Expression.Assign(item, Expression.Invoke(arrayAccess, i)),
+					Expression.Assign(item, Expression.ArrayAccess(array, i)),
 					action
 					),
 				Expression.AddAssign(i, Expression.Constant(1U))

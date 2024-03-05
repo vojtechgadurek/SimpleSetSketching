@@ -26,10 +26,10 @@ namespace SimpleSetSketching.New.Tooglers.TooglingFunctions
 			return DoXor;
 		}
 		public static Expression<Action<TruncatedArray<ValueType>, TTable>> GetToogleTruncatedArrayToTable<TTable>(
-			IEnumerable<Expression<Func<ValueType, HashType>>> hashingFunctions)
+			HashingFunctions hashingFunctions)
 		{
 
-			Expression<Action<TableWithValue<TTable, ValueType>>> CreateToogleAction(Expression<Func<ValueType, HashType>> hashingFunction)
+			Expression<Action<TableWithValue<TTable, ValueType>>> CreateToogleAction(HashingFunctionExpression hashingFunction)
 			{
 				var tableWithValue = Expression.Parameter(typeof(TableWithValue<TTable, ValueType>));
 				var table = Expression.Property(tableWithValue, nameof(TableWithValue<TTable, ValueType>.Table));
