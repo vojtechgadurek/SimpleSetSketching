@@ -24,20 +24,18 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			int numberOfBitsUsed = lengthOfKMer * 2 + 2;
 			if (lengthOfKMer > _maxLength) throw new ArgumentException($"{lengthOfKMer} is over limit 31");
 			_lengthMask = (1UL << (numberOfBitsUsed + 1)) - 1 & _removeHeaderMask;
-			_firstSymbolMask = (11UL << numberOfBitsUsed);
+			_firstSymbolMask = ~(11UL << numberOfBitsUsed - 2);
 		}
 
 		public KMerWithComplement EmptyKMer => new KMerWithComplement(new KMer(_headerValue), new KMer(AddHeader(RemoveHeader(~0ul))));
 
 		public KMerWithComplement PushSymbolIn(KMerWithComplement kMerWithComplement, Symbol symbol)
 		{
-			ulong value = kMerWithComplement.KMer.GetBinaryRepresentation();
-			ulong complement = kMerWithComplement.Complement.GetBinaryRepresentation();
 
-			value = PushSymbolFromStart(value, symbol);
-			complement = PushSymbolFromEnd(complement, GetSymbolComplement(symbol));
+			var value = PushSymbolFromStart(kMerWithComplement.KMer, symbol);
+			var complement = PushSymbolFromEnd(kMerWithComplement.Complement, GetSymbolComplement(symbol));
 
-			return new KMerWithComplement(new KMer(value), new KMer(complement));
+			return new KMerWithComplement(value, complement);
 		}
 
 		public Symbol GetSymbolComplement(Symbol symbol)
@@ -91,15 +89,14 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 				value |= GetDefaultValuesWithSymbolInPlace(symbols[i], i);
 			}
 			return new KMer(value);
-
 		}
-		public ulong RemoveHeader(ulong value)
+		public ulong KMerToValue(KMer value)
 		{
-			return value & _removeHeaderMask;
+			return value.GetBinaryRepresentation() & _removeHeaderMask;
 		}
-		public ulong AddHeader(ulong value)
+		public KMer ValueToKMer(ulong value)
 		{
-			return value | _headerValue;
+			return new KMer(value | _headerValue & _lengthMask);
 		}
 
 		public ulong GetMask(int index)
@@ -130,48 +127,49 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			ulong value = (ulong)symbol << ((index + 1) * 2);
 			return new KMer(SetNthSymbolToDefault(kMer, index).GetBinaryRepresentation() | value);
 		}
-		public ulong ChangeFirstSymbol(ulong value, Symbol symbol)
+		public KMer ChangeFirstSymbol(KMer kMer, Symbol symbol)
 		{
-			value = value & _firstSymbolMask;
-			value = value | (ulong)symbol;
-			return value;
-		}
-
-		public ulong ChangeLastSymbol(ulong value, Symbol symbol)
-		{
+			var value = kMer.GetBinaryRepresentation();
 			value = value & _lastSymbolMask;
-			value = value | (ulong)symbol;
-			return value;
+			value = value | ((ulong)symbol << 2);
+			return new KMer(value);
+
 		}
-		private ulong ShiftLeft(ulong value)
+
+		public KMer ChangeLastSymbol(KMer kMer, Symbol symbol)
 		{
-			value = RemoveHeader(value);
+			var value = kMer.GetBinaryRepresentation();
+			value = value & _firstSymbolMask;
+			value = value | (ulong)symbol << (this.KMerLength * 2);
+			return new KMer(value);
+		}
+		public KMer LeftShift(KMer kMer)
+		{
+			var value = KMerToValue(kMer);
 			value = value << 2;
-			value = AddHeader(value);
-			value &= _lengthMask;
-			return value;
+			var ansver = ValueToKMer(value);
+			return ansver;
 		}
 
-		public ulong ShiftRight(ulong value)
+		public KMer RightShift(KMer kMer)
 		{
-			value = RemoveHeader(value);
+			var value = KMerToValue(kMer);
 			value = value >> 2;
-			value = AddHeader(value);
-			value &= _lengthMask;
-			return value;
+			var ansver = ValueToKMer(value);
+			return ansver;
 		}
 
-		public ulong PushSymbolFromStart(ulong value, Symbol symbol)
+		public KMer PushSymbolFromStart(KMer kMer, Symbol symbol)
 		{
-			value = ShiftRight(value);
-			value = ChangeFirstSymbol(value, symbol);
-			return value;
+			kMer = RightShift(kMer);
+			kMer = ChangeFirstSymbol(kMer, symbol);
+			return kMer;
 		}
-		public ulong PushSymbolFromEnd(ulong value, Symbol symbol)
+		public KMer PushSymbolFromEnd(KMer kMer, Symbol symbol)
 		{
-			value = ShiftLeft(value);
-			value = ChangeLastSymbol(value, symbol);
-			return value;
+			kMer = LeftShift(kMer);
+			kMer = ChangeLastSymbol(kMer, symbol);
+			return kMer;
 		}
 
 		public string TranslateKMerToString(KMer kMer)
