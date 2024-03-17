@@ -40,8 +40,8 @@ namespace Tests
 		}
 		public static IEnumerable<object[]> ComplementDataTest()
 		{
-			yield return new object[] { "A", "IsTable" };
-			yield return new object[] { "IsTable", "A" };
+			yield return new object[] { "A", "ToTable" };
+			yield return new object[] { "ToTable", "A" };
 			yield return new object[] { "G", "C" };
 			yield return new object[] { "C", "G" };
 			yield return new object[] { "AAAGGG", "CCCTTT" };

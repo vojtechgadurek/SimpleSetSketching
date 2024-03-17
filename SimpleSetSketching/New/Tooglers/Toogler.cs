@@ -24,7 +24,7 @@ namespace SimpleSetSketching.New.Tooglers
 		public Toogler(int bufferSize, TTable table, HashingFunctions hashFunctions, Expression<Action<HashType, ValueType, TTable>> tooglingAction)
 		{
 			_bufferSize = bufferSize;
-			_hashToBufferFunctions = hashFunctions.Select(BufferHashingFunction).Select(f => f.Compile());
+			_hashToBufferFunctions = hashFunctions.Select(BufferHashingFunction).Select(f => f.Compile()).ToList();
 			_toogleToBufferAction = BufferToogleFunction(tooglingAction).Compile();
 			_table = table;
 		}
@@ -32,18 +32,21 @@ namespace SimpleSetSketching.New.Tooglers
 		public static Expression<Func<ValueType[], HashType[], int, HashType[]>> BufferHashingFunction(HashingFunctionExpression hashingFunction)
 		{
 			var f = CompiledFunctions.Create<ValueType[], HashType[], int, HashType[]>(
-				out var inputTable,
-				out var outputTable,
-				out var size
+				out var input_,
+				out var output_,
+				out var size_
 				);
-			f.S.Assign(
-				outputTable,
-				inputTable.V.IsTable<ValueType>().Select(
-					hashingFunction,
-					outputTable.V.IsTable<HashType>(),
-					size.V
-				).V
-			);
+			f.S.DeclareVariable<int>(out var i_)
+				.While(
+					i_.V < size_.V,
+					new Scope()
+						.Macro(out var input_T, input_.V.ToTable<ulong>())
+						.Macro(out var output_T, output_.V.ToTable<ulong>())
+						.Function(hashingFunction, input_T[i_.V].V, out var hash_)
+						.Assign(output_T[i_.V], hash_)
+						.Assign(i_, i_.V + 1)
+						)
+				.Assign(f.Output, output_.V);
 			return f.Construct();
 		}
 
@@ -57,8 +60,8 @@ namespace SimpleSetSketching.New.Tooglers
 					out var table_
 			);
 			f.S.DeclareVariable<int>(out var i_, 0)
-				.Macro(out var hashes_T, hashes_.V.IsTable<ulong>())
-				.Macro(out var values_T, corespondingValues_.V.IsTable<ulong>())
+				.Macro(out var hashes_T, hashes_.V.ToTable<ulong>())
+				.Macro(out var values_T, corespondingValues_.V.ToTable<ulong>())
 				.While(
 					i_.V < numberOfItems_.V,
 					new Scope().Action(_toogleAction, hashes_T[i_.V].V, values_T[i_.V].V, table_.V)

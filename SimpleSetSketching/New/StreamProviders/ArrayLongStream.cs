@@ -9,38 +9,37 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.StreamProviders
 {
-	public static class StreamProvider
+	public class ArrayLongStream : ISketchStream<ulong>
 	{
-		public class ArrayLongStream : ISketchStream<ulong>
+		int count = 0;
+		ulong[] _data;
+		public ArrayLongStream(ulong[] data)
 		{
-			int count = 0;
-			ulong[] _data;
-			public ArrayLongStream(ulong[] data)
+			_data = data;
+		}
+
+		public void Dispose()
+		{
+		}
+
+		public TruncatedArray<ulong> FillBuffer(ulong[] buffer)
+		{
+			int unfiled = buffer.Length - (_data.Length - count);
+			if (unfiled < 0)
 			{
-				_data = data;
+				unfiled = 0;
 			}
 
-			public void Dispose()
-			{
-			}
+			int returnedItems = buffer.Length - unfiled;
+			Array.Copy(_data, count, buffer, 0, returnedItems);
+			count += returnedItems;
 
-			public TruncatedArray<ulong> FillBuffer(ulong[] buffer)
-			{
-				int unfiled = buffer.Length - (_data.Length - count);
-				if (unfiled < 0)
-				{
-					unfiled = 0;
-				}
+			return new TruncatedArray<ulong>(returnedItems, buffer);
+		}
 
-				int returnedItems = buffer.Length - unfiled;
-				Array.Copy(_data, count, buffer, 0, returnedItems);
-				return new TruncatedArray<ulong>(returnedItems, buffer);
-			}
-
-			public uint? Length()
-			{
-				return (uint)_data.Length;
-			}
+		public uint? Length()
+		{
+			return (uint)_data.Length;
 		}
 	}
 }

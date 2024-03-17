@@ -22,7 +22,7 @@ namespace SimpleSetSketching
 		/// <typeparam name="TTable"></typeparam> 
 		/// <typeparam name="TValue"></typeparam> Type of _value to toogle, it is variable in the returned lambda expression tree.
 		/// <param name="hashingFunction"></param> Expected to provide hash of the _value in the range of the _table.
-		/// <param name="table"></param> IsTable to toogle to, it is fixed.
+		/// <param name="table"></param> ToTable to toogle to, it is fixed.
 		/// <returns></returns>
 		public static Expression<Action<TValue>> GetToogleToTable<TTable, TValue>(Expression<Func<TValue, ulong>> hashingFunction, TTable table)
 		{
@@ -39,7 +39,7 @@ namespace SimpleSetSketching
 		/// <typeparam name="TTable"></typeparam>
 		/// <typeparam name="TValue"></typeparam>
 		/// <param name="hashingFunctions"></param> All hashing functions are expected to provide hash of the _value in the range of the _table.
-		/// <param name="table"></param> IsTable to toogle to, it is fixed.
+		/// <param name="table"></param> ToTable to toogle to, it is fixed.
 		/// <returns></returns>
 
 		public static Expression<Action<TValue>> GetMultiToogleToTable<TTable, TValue>(IEnumerable<Expression<Func<TValue, ulong>>> hashingFunctions, TTable table)

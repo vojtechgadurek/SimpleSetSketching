@@ -66,11 +66,11 @@ namespace SimpleSetSketchingBenchmarking
 				out var outputTable,
 				out var size
 				);
-			var x = outputTable.V.IsTable<ulong>();
+			var x = outputTable.V.ToTable<ulong>();
 			f.S.Assign(f.Output,
-				inputTable.V.IsTable<ulong>().Select(
+				inputTable.V.ToTable<ulong>().Select(
 					hashingFunction,
-					outputTable.V.IsTable<ulong>(),
+					outputTable.V.ToTable<ulong>(),
 					size.V
 				).V
 			);

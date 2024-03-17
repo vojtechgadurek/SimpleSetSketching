@@ -10,19 +10,19 @@ namespace SimpleSetSketching
 {
 
 	/*
-	internal class Buffer<IsTable> where IsTable : struct
+	internal class Buffer<ToTable> where ToTable : struct
 	{
-		private readonly IsTable[] _buffer;
+		private readonly ToTable[] _buffer;
 		private int _index = 0;
 		private int _nItemsRecieved = 0;
-		public delegate int FillBuffer(IsTable[] buffer, int index, int length);
+		public delegate int FillBuffer(ToTable[] buffer, int index, int length);
 		private FillBuffer _fillBufferDelegate;
 		public Buffer(int size, FillBuffer fillBuffer)
 		{
-			_buffer = new IsTable[size];
+			_buffer = new ToTable[size];
 			_fillBufferDelegate = fillBuffer;
 		}
-		public IsTable? GetExpression()
+		public ToTable? GetExpression()
 		{
 			if (_index < _nItemsRecieved) return _buffer[_index++];
 			ReFill();
