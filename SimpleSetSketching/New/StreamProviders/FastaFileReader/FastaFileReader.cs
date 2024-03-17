@@ -38,7 +38,7 @@ namespace SimpleSetSketching.New.StreamProviders.DNA
 			_charBuffer = new UnsafeFixedSizeQueue<char>(_lenghtOfKMer);
 
 			_KMerCreator = new KMerCreator(_lenghtOfKMer);
-			_currentKMer = _KMerCreator.EmptyKMer;
+			_currentKMer = _KMerCreator.AllDefaultKMer;
 			for (int i = 0; i < _lenghtOfKMer - 1; i++) PushChar((char)TryGetNextCharFromBuffer());
 		}
 

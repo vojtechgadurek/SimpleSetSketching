@@ -28,7 +28,7 @@ namespace SimpleSetSketching
 		{
 			var value = data[index];
 			/*
-			return ((data[index] != 0)) && (FirstHash(value, KMerLength) == index || SecondHash(value, KMerLength) == index || ThirdHash(value, KMerLength) == index);
+			return ((data[index] != 0)) && (FirstHash(_value, KMerLength) == index || SecondHash(_value, KMerLength) == index || ThirdHash(_value, KMerLength) == index);
 			*/
 			if (value == 0)
 			{
@@ -64,7 +64,7 @@ namespace SimpleSetSketching
 			{
 				AddIfPure(i, pure, data, size);
 			}
-			int hardStop = data.Length * shotDownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
+			int hardStop = data.Length * shotDownMultiplicator; //Tohle je nějaká _random konstatnta, aby se to necyklilo
 			int rounds = 0;
 			while (pure.Count > 0)
 			{

@@ -100,7 +100,7 @@ namespace SimpleSetSketching.Testing
 		public static ulong GenerateRandomUlong(Random random)
 		{
 			ulong randomLong = 0;
-			//Generate some random ulong - mostly like 111..1 not possible
+			//Generate some _random ulong - mostly like 111..1 not possible
 			//But thats not issue
 			while (randomLong == 0)
 			{

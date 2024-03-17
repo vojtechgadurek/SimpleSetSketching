@@ -36,8 +36,8 @@ namespace SimpleSetSketching
 
 			TypeBuilder typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout, typeof(ValueType), new Type[] { typeof(IConstant<T>) });
 
-			// Set value
-			FieldBuilder fieldBuilder = typeBuilder.DefineField("value", typeof(T), FieldAttributes.Public | FieldAttributes.Literal);
+			// Set _value
+			FieldBuilder fieldBuilder = typeBuilder.DefineField("_value", typeof(T), FieldAttributes.Public | FieldAttributes.Literal);
 			fieldBuilder.SetConstant(constantValue);
 
 			// Add a constructor
@@ -48,15 +48,15 @@ namespace SimpleSetSketching
 			constructorIL.Emit(OpCodes.Stfld, fieldBuilder);
 			constructorIL.Emit(OpCodes.Ret);
 
-			// Add a method to get the constant value
-			MethodBuilder methodBuilder = typeBuilder.DefineMethod("Get", MethodAttributes.Public | MethodAttributes.Virtual, typeof(T), Type.EmptyTypes);
+			// Add a method to get the constant _value
+			MethodBuilder methodBuilder = typeBuilder.DefineMethod("GetExpression", MethodAttributes.Public | MethodAttributes.Virtual, typeof(T), Type.EmptyTypes);
 			ILGenerator methodIL = methodBuilder.GetILGenerator();
 			methodIL.Emit(OpCodes.Ldarg_0);
 			methodIL.Emit(OpCodes.Ldfld, fieldBuilder);
 			methodIL.Emit(OpCodes.Ret);
 
 			// Add to interface
-			typeBuilder.DefineMethodOverride(methodBuilder, typeof(IConstant<T>).GetMethod("Get"));
+			typeBuilder.DefineMethodOverride(methodBuilder, typeof(IConstant<T>).GetMethod("GetExpression"));
 
 			Type dynamicType = typeBuilder.CreateType();
 			_types[constantValue] = dynamicType;

@@ -58,7 +58,7 @@ namespace SimpleSetSketching.SimpleSetSketchers
 					pure.Add(i);
 				}
 			}
-			ulong hardStop = _size * _shotDownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
+			ulong hardStop = _size * _shotDownMultiplicator; //Tohle je nějaká _random konstatnta, aby se to necyklilo
 			ulong rounds = 0;
 			while (pure.Count > 0)
 			{

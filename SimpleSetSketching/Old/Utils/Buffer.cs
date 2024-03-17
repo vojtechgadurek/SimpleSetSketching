@@ -10,19 +10,19 @@ namespace SimpleSetSketching
 {
 
 	/*
-	internal class Buffer<T> where T : struct
+	internal class Buffer<IsTable> where IsTable : struct
 	{
-		private readonly T[] _buffer;
+		private readonly IsTable[] _buffer;
 		private int _index = 0;
 		private int _nItemsRecieved = 0;
-		public delegate int FillBuffer(T[] buffer, int index, int length);
+		public delegate int FillBuffer(IsTable[] buffer, int index, int length);
 		private FillBuffer _fillBufferDelegate;
 		public Buffer(int size, FillBuffer fillBuffer)
 		{
-			_buffer = new T[size];
+			_buffer = new IsTable[size];
 			_fillBufferDelegate = fillBuffer;
 		}
-		public T? Get()
+		public IsTable? GetExpression()
 		{
 			if (_index < _nItemsRecieved) return _buffer[_index++];
 			ReFill();
@@ -59,7 +59,7 @@ namespace SimpleSetSketching
 
 		public void Enqueue(T? item)
 		{
-			_queue[_tail] = item;
+			_queue![_tail] = item;
 			_tail = (_tail + 1) & _mask;
 		}
 		public T? Dequeue()

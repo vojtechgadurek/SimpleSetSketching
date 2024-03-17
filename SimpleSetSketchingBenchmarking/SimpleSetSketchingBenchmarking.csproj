@@ -5,10 +5,13 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<GenerateProgramFile>false</GenerateProgramFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+		<PackageReference Include="BenchmarkDotNet.TestAdapter" Version="0.13.12" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -180,8 +180,8 @@ namespace Tests
 		void SimpleCreationTest()
 		{
 			Type two = SimpleSetSketching.DynamicConstantTypeCreator<uint>.GetConstant(2);
-			var value = two.GetFields();
-			Assert.Equal(2u, two.GetField("value").GetValue(null));
+			var _value = two.GetFields();
+			Assert.Equal(2u, two.GetField("_value").GetValue(null));
 		}
 
 	}
@@ -203,9 +203,9 @@ namespace Tests
 				Random random = new Random(0);
 				for (int i = 0; i < 100; i++)
 				{
-					long value = random.Next();
-					bitValueArray.Set(i, value);
-					Assert.Equal(value, bitValueArray.Get(i));
+					long _value = random.Next();
+					bitValueArray.Set(i, _value);
+					Assert.Equal(_value, bitValueArray.GetExpression(i));
 					bitValueArray.Set(i, 0);
 				}
 			}
@@ -216,10 +216,10 @@ namespace Tests
 				Random random = new Random(0);
 				for (int i = 0; i < 100; i++)
 				{
-					long value = random.Next();
-					bitValueArray.Set(i, value);
-					Assert.Equal(value, bitValueArray.Get(i));
-					bitValueArray.Set(i, value);
+					long _value = random.Next();
+					bitValueArray.Set(i, _value);
+					Assert.Equal(_value, bitValueArray.GetExpression(i));
+					bitValueArray.Set(i, _value);
 				}
 			}
 		}

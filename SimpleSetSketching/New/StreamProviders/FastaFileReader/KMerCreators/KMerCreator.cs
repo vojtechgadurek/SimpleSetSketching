@@ -27,13 +27,14 @@ namespace SimpleSetSketching.New.StreamProviders.DNA.KMerCreators
 			_firstSymbolMask = ~(11UL << numberOfBitsUsed - 2);
 		}
 
-		public KMerWithComplement EmptyKMer => new KMerWithComplement(new KMer(_headerValue), new KMer(AddHeader(RemoveHeader(~0ul))));
+		public KMerWithComplement AllDefaultKMer => new KMerWithComplement(ValueToKMer(0), ValueToKMer(~0ul));
 
 		public KMerWithComplement PushSymbolIn(KMerWithComplement kMerWithComplement, Symbol symbol)
 		{
-
-			var value = PushSymbolFromStart(kMerWithComplement.KMer, symbol);
-			var complement = PushSymbolFromEnd(kMerWithComplement.Complement, GetSymbolComplement(symbol));
+			var val = Convert.ToString((long)kMerWithComplement.KMer.GetBinaryRepresentation(), 2);
+			var value = PushSymbolFromEnd(kMerWithComplement.KMer, symbol);
+			val = Convert.ToString((long)value.GetBinaryRepresentation(), 2);
+			var complement = PushSymbolFromStart(kMerWithComplement.Complement, GetSymbolComplement(symbol));
 
 			return new KMerWithComplement(value, complement);
 		}

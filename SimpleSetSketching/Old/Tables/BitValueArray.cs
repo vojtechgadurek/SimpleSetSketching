@@ -10,7 +10,7 @@ namespace SimpleSetSketching
 	public class BitValueArray
 	{
 		/// <summary>
-		/// Allows to store long value to any bit in concesutive block of memory 
+		/// Allows to store long _value to any bit in concesutive block of memory 
 		/// </summary>
 		long[] _data;
 		const int _numberOfBits = 6;

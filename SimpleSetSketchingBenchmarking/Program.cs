@@ -9,6 +9,7 @@ using SimpleSetSketching;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.FSharp.Core;
+using SimpleSetSketchingBenchmarking;
 
 namespace MyBenchmarks
 {
@@ -16,6 +17,7 @@ namespace MyBenchmarks
 	{
 		public static void Main(string[] args)
 		{
+			var summary = BenchmarkRunner.Run<TestHashFunctions>();
 
 		}
 	}

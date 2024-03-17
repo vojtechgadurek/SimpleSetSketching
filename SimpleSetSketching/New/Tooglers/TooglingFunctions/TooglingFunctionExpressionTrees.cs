@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using LittleSharp;
 using SimpleSetSketching.New.StreamProviders;
 using SimpleSetSketching.New.Utils;
 using SimpleSetSketching.New.Utils.ExpressionTrees;
@@ -18,13 +19,12 @@ namespace SimpleSetSketching.New.Tooglers.TooglingFunctions
 {
 	public static class TooglingFunctionExpressionTrees
 	{
-		public static Expression Toogling(Expression index, Expression table, Expression value)
-		{
-			var DoXor = Expression.ExclusiveOrAssign(
-				Expression.ArrayAccess(table, index),
-				value);
-			return DoXor;
-		}
+		//public static Scope Toggle<TTable>(Expression<HashType> index, SmartExpression<TTable> _table, Expression<ValueType> _value)
+		//{
+		//	var Toogle = new Scope();
+		//	Toogle.AddExpression();
+		//}
+
 		public static Expression<Action<TruncatedArray<ValueType>, TTable>> GetToogleTruncatedArrayToTable<TTable>(
 			HashingFunctions hashingFunctions)
 		{
@@ -37,9 +37,10 @@ namespace SimpleSetSketching.New.Tooglers.TooglingFunctions
 				var index = Expression.Invoke(hashingFunction, value);
 
 
-				var toogle = Toogling(index, table, value);
-				var toogleAction = Expression.Lambda<Action<TableWithValue<TTable, ValueType>>>(toogle, tableWithValue);
-				return toogleAction;
+				//var toogle = Toogling(index, _table, _value);
+				//var _toogleToBufferAction = Expression.Lambda<Action<TableWithValue<TTable, ValueType>>>(toogle, tableWithValue);
+				throw new NotImplementedException();
+				//return _toogleToBufferAction;
 			}
 
 
@@ -53,7 +54,7 @@ namespace SimpleSetSketching.New.Tooglers.TooglingFunctions
 			var truncatedArray = Expression.Parameter(typeof(TruncatedArray<ValueType>));
 			var buffer = Expression.Property(truncatedArray, nameof(TruncatedArray<ValueType>.Array));
 			var size = Expression.Property(truncatedArray, nameof(TruncatedArray<ValueType>.Size));
-			var table = Expression.Parameter(typeof(TTable), "table");
+			var table = Expression.Parameter(typeof(TTable), "_table");
 
 			var var = Expression.Parameter(typeof(uint), "i");
 			var condition = Expression.LessThan(var, size);

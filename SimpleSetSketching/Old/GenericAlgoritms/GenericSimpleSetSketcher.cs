@@ -22,27 +22,27 @@ namespace SimpleSetSketching
 		readonly uint _size = DynamicConstantTypeCreator<uint>.GetValue(typeof(TSize));
 
 		public GenericSimpleSetSketcher(
-			TTable table,
+			TTable _table,
 			TFirstHashingFunction firstHashingFunction,
 			TSecondHashingFunction secondHashingFunction,
 			TThirdHashingFunction thirdHashingFunction
 			)
 		{
-			_table = table;
+			_table = _table;
 			_firstHashingFunction = firstHashingFunction;
 			_secondHashingFunction = secondHashingFunction;
 			_thirdHashingFunction = thirdHashingFunction;
 		}
 
-		public void Toogle(TValue value)
+		public void Toogle(TValue _value)
 		{
-			_table.Set(_firstHashingFunction.Hash(value), value);
-			_table.Set(_secondHashingFunction.Hash(value), value);
-			_table.Set(_thirdHashingFunction.Hash(value), value);
+			_table.Set(_firstHashingFunction.Hash(_value), _value);
+			_table.Set(_secondHashingFunction.Hash(_value), _value);
+			_table.Set(_thirdHashingFunction.Hash(_value), _value);
 		}
 		public bool LooksPure(uint index)
 		{
-			TValue number = _table.Get(index);
+			TValue number = _table.GetExpression(index);
 			if (number.IsNull())
 			{
 				return false;
@@ -82,7 +82,7 @@ namespace SimpleSetSketching
 			{
 				AddIfPure(i, pure);
 			}
-			int hardStop = (int)_table.Length() * _shotdownMultiplicator; //Tohle je nějaká random konstatnta, aby se to necyklilo
+			int hardStop = (int)_table.Length() * _shotdownMultiplicator; //Tohle je nějaká _random konstatnta, aby se to necyklilo
 			int rounds = 0;
 			while (pure.Count > 0)
 			{
@@ -98,7 +98,7 @@ namespace SimpleSetSketching
 					{
 						continue;
 					}
-					TValue x = _table.Get(i);
+					TValue x = _table.GetExpression(i);
 					Toogle(x);
 					if (ansver.Contains(x))
 					{

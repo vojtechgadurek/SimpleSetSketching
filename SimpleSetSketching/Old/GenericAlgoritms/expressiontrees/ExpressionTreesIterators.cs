@@ -40,7 +40,7 @@ namespace SimpleSetSketching
 			var forExpression = For(
 				Expression.LessThan(i, length),
 				Expression.Block(
-					Expression.Assign(item, Expression.Call(array, typeof(TTable).GetMethod("Get"), i)),
+					Expression.Assign(item, Expression.Call(array, typeof(TTable).GetMethod("GetExpression"), i)),
 					action
 					),
 				Expression.AddAssign(i, Expression.Constant(1U))

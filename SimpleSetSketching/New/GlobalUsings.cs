@@ -5,4 +5,6 @@ global using HashingFunctionExpression = System.Linq.Expressions.Expression<Syst
 global using HashingFunctions = System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression<System.Func<ulong, ulong>>>;
 global using Set = System.Collections.Generic.HashSet<ulong>;
 
-
+global using LittleSharp;
+global using LittleSharp.Callables;
+global using LittleSharp.Literals;

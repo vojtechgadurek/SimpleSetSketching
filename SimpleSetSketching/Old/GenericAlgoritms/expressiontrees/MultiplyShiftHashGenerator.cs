@@ -15,10 +15,10 @@ namespace SimpleSetSketching
 	{
 		public static Expression<Func<ulong, ulong>> CreateHashFunction(ulong multiply, ulong size)
 		{
-			// (value * multiply) >> (64 - KMerLength) % KMerLength
+			// (_value * multiply) >> (64 - KMerLength) % KMerLength
 			var multiplyConstant = Expression.Constant(multiply);
 			var sizeConstant = Expression.Constant(size);
-			var parameterValue = Expression.Parameter(typeof(ulong), "value");
+			var parameterValue = Expression.Parameter(typeof(ulong), "_value");
 			var multiplyExpression = Expression.Multiply(parameterValue, multiplyConstant);
 			var shiftExpression = Expression.RightShift(multiplyExpression, Expression.Constant(BitOperations.TrailingZeroCount(size)));
 			var moduloExpression = Expression.Modulo(shiftExpression, sizeConstant);
