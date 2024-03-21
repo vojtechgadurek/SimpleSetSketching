@@ -179,7 +179,7 @@ namespace Tests
 		[Fact]
 		void SimpleCreationTest()
 		{
-			Type two = SimpleSetSketching.DynamicConstantTypeCreator<uint>.GetConstant(2);
+			Type two = SimpleSetSketchFunc.DynamicConstantTypeCreator<uint>.GetConstant(2);
 			var _value = two.GetFields();
 			Assert.Equal(2u, two.GetField("_value").GetValue(null));
 		}

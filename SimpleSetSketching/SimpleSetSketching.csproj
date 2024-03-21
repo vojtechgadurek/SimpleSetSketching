@@ -19,7 +19,4 @@
 		<ProjectReference Include="..\..\LittleSharp\LittleSharp\LittleSharp.csproj" />
 		<ProjectReference Include="..\SimpleSetSketchingFSharp\SimpleSetSketchingFSharp.fsproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="New\Decoders\" />
-	</ItemGroup>
 </Project>

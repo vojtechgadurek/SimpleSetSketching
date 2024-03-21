@@ -7,6 +7,7 @@ global using SimpleSetSketching.New.Hashers;
 global using SimpleSetSketching.New.Hashing;
 global using SimpleSetSketching.New.Tooglers;
 global using SimpleSetSketching.New.Tooglers.TooglingFunctions;
+global using SimpleSetSketching.New.Decoders;
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;

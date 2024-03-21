@@ -137,7 +137,7 @@ namespace SimpleSetSketching
 			{
 				ulong next = insert.Next();
 				if (next == 0) break;
-				//SimpleSetSketchingFSharp.SimpleSetSketching.testToogle(_data, next, _size - 1);
+				//SimpleSetSketchingFSharp.SimpleSetSketchFunc.testToogle(_data, next, _size - 1);
 				StaticSimpleSetSketcher_v02.Toogle(next, _data, _size);
 			}
 		}

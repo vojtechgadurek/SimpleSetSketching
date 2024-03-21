@@ -12,7 +12,7 @@ namespace SimpleSetSketching
 		where TSize : struct, IConstant<uint>
 	{
 		/// <summary>
-		/// Generic implementation of SimpleSetSketch algorithm
+		/// Generic implementation of SimpleSetSketchFunc algorithm
 		/// </summary>
 		TTable _table;
 		TFirstHashingFunction _firstHashingFunction;

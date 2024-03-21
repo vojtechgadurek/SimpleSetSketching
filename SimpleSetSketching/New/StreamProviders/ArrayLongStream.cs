@@ -9,6 +9,22 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.New.StreamProviders
 {
+	public static class RandomStreamData
+	{
+		public static ulong[] GenerateRandomArray(ulong length, Random random)
+		{
+			ulong[] data = new ulong[length];
+			for (ulong i = 0; i < length; i++)
+			{
+				data[i] = (ulong)random.NextInt64();
+			}
+			return data;
+		}
+		public static ArrayLongStream Create(ulong length, Random random)
+		{
+			return new ArrayLongStream(GenerateRandomArray(length, random));
+		}
+	}
 	public class ArrayLongStream : ISketchStream<ulong>
 	{
 		int count = 0;

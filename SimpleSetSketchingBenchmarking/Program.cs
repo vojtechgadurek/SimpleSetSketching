@@ -10,6 +10,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.FSharp.Core;
 using SimpleSetSketchingBenchmarking;
+using Gee.External.Capstone.X86;
 
 namespace MyBenchmarks
 {
@@ -17,8 +18,15 @@ namespace MyBenchmarks
 	{
 		public static void Main(string[] args)
 		{
-			var summary = BenchmarkRunner.Run<TestHashFunctions>();
-
+			HashSet<string> argsSet = new HashSet<string>(args);
+			if (argsSet.Contains("hashing"))
+			{
+				var summary = BenchmarkRunner.Run<HashingBenchmark>();
+			}
+			if (argsSet.Contains("toogler"))
+			{
+				var summary = BenchmarkRunner.Run<BenchmarkToogling>();
+			}
 		}
 	}
 }

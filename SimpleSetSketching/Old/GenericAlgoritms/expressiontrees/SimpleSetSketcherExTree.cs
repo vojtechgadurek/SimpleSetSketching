@@ -13,7 +13,7 @@ namespace SimpleSetSketching
 		where TValue : struct, IValue<TValue>
 	{
 		/// <summary>
-		/// Generic implementation of SimpleSetSketch algorithm
+		/// Generic implementation of SimpleSetSketchFunc algorithm
 		/// </summary>
 		TTable _table;
 		int _shotdownMultiplicator = 10;

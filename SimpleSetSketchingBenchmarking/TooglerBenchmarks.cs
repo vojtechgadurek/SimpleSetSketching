@@ -8,10 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SimpleSetSketching.New.StreamProviders;
-using SimpleSetSketching.New.Tooglers.TooglingFunctions;
+using SimpleSetSketching.New.Tooglers;
 using SimpleSetSketching.New.Utils;
 using SimpleSetSketching.New.Hashing;
-
+using SimpleSetSketching.New.Sketchers;
 using HashingFunctionKind = SimpleSetSketching.New.Hashing.HashingFunctionProvider.HashingFunctionKind;
 using System.Linq.Expressions;
 using LittleSharp;
@@ -21,79 +21,46 @@ using LittleSharp.Callables;
 namespace SimpleSetSketchingBenchmarking
 {
 
-	public class TestHashFunctions
+	public class BenchmarkToogling
 	{
-		public ulong[][]? data;
-		public ulong[]? ansver;
-		const ulong Size = 4096;
-		const int Length = 1000;
-		Func<ulong[], ulong[], ulong[]> hashFunction;
-		[Params(42, 679, 809, 1238)]
-		public ulong Seed;
 
-		[Params(HashingFunctionKind.LinearCongrunce, HashingFunctionKind.MultiplyShift)]
-		public HashingFunctionKind hashFunctionKind;
+		[ParamsSource(nameof(HashingFunctionsToTest))]
+		public HashingFunctionProvider.HashingFunctionKind hashingFunction;
 
-		[GlobalSetup]
-		public void GlobalSetup()
-		{
-			data = new ulong[Length][];
-			for (int i = 0; i < Length; i++)
-			{
-				data[i] = GenerateRandomULongArray.GenerateRandomULongArrayFunc((int)Size, Seed);
-			}
-			ansver = new ulong[Size];
-		}
+		public static IEnumerable<HashingFunctionProvider.HashingFunctionKind> HashingFunctionsToTest() =>
+			Enum.GetValues(typeof(HashingFunctionProvider.HashingFunctionKind)).Cast<HashingFunctionProvider.HashingFunctionKind>();
+
+		public const int Length = 1024;
+		public const int BufferLength = 4096;
+		public const int DataLength = Length * BufferLength;
+
+		[ParamsSource(nameof(TableLengths))]
+		public ulong TableLength;
+
+		public static IEnumerable<ulong> TableLengths() => new[] { 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576 };
+
+		public Random? random;
+		public ArrayLongStream? Stream;
 
 		[IterationSetup]
 		public void IterationSetup()
 		{
-			data = new ulong[Length][];
-			for (int i = 0; i < Length; i++)
-			{
-				data[i] = GenerateRandomULongArray.GenerateRandomULongArrayFunc((int)Size, Seed);
-			}
-			ansver = new ulong[Size];
-			Random random = new Random((int)Seed);
-		}
-
-		public Func<ulong[], ulong[], int, ulong[]> GetHashFunction(HashingFunctionKind hashFunctionKind, Random random)
-		{
-			var hashingFunction = HashingFunctionProvider.GetHashingFunction(hashFunctionKind, Size, random);
-
-			var f = CompiledFunctions.Create<ulong[], ulong[], int, ulong[]>(
-				out var inputTable,
-				out var outputTable,
-				out var size
-				);
-			var x = outputTable.V.ToTable<ulong>();
-			f.S.Assign(f.Output,
-				inputTable.V.ToTable<ulong>().Select(
-					hashingFunction,
-					outputTable.V.ToTable<ulong>(),
-					size.V
-				).V
-			);
-			return f.Construct().Compile();
+			random = new Random();
+			Stream = RandomStreamData.Create((ulong)DataLength, random);
 		}
 
 		[Benchmark]
-		public ulong TestHashing()
+		public ulong[] BenchmarkToogler()
 		{
-			ulong sum = 0;
-			for (int i = 0; i < Length; i++)
-			{
-				ansver = hashFunction(data[i], ansver);
-				for (int j = 0; j < (int)Size; j++)
-				{
-					sum += ansver[j];
-				}
-			}
-			return sum;
+			var table = new ulong[TableLength];
+
+			var hashFunction = HashingFunctionProvider.GetHashingFunction(hashingFunction, TableLength);
+
+			var toogler = new Toogler<ulong[]>(BufferLength, table, new[] { hashFunction }, SimpleSetSketchFunc.GetXorToogle<ulong[]>());
+
+			toogler.ToogleStreamToTable(Stream!);
+			return table;
+
 		}
-
-
-
 	}
-
 }
