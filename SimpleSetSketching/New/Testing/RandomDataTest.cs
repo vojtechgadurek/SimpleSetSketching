@@ -9,7 +9,7 @@ namespace SimpleSetSketching.New.Testing
 {
 	public static class RandomTestingDataGenerator
 	{
-		public class RandomSketchStreamProvider : ISketchStreamProvider<ulong>
+		public class RandomSketchStreamProvider : ISketchStream<ulong>
 		{
 			int offset;
 			ulong[] data;
@@ -51,9 +51,19 @@ namespace SimpleSetSketching.New.Testing
 				}
 			}
 
+			public TruncatedArray<ulong> FillBuffer(ulong[] buffer)
+			{
+				throw new NotImplementedException();
+			}
+
 			public ulong? Length()
 			{
 				return (ulong)data.Length;
+			}
+
+			uint? ISketchStream<ulong>.Length()
+			{
+				throw new NotImplementedException();
 			}
 		}
 	}

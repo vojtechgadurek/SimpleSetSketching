@@ -1,5 +1,4 @@
 ﻿using LittleSharp.Literals;
-using SimpleSetSketching.New.Hashers;
 using SimpleSetSketching.New.Hashing;
 using SimpleSetSketching.New.StreamProviders;
 using SimpleSetSketching.New.Utils;
