@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using SimpleSetSketching.New.Hashing;
-using SimpleSetSketching.New.StreamProviders;
+using SimpleSetSketching.Hashing;
+using SimpleSetSketching.StreamProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,13 +1,13 @@
 ﻿using Microsoft.FSharp.Core;
 using SimpleSetSketching;
-using SimpleSetSketching.New.StreamProviders.DNA.KMerCreators;
-using SimpleSetSketching.New.StreamProviders.DNA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using SimpleSetSketching.StreamProviders.FastaFileReader;
+using SimpleSetSketching.StreamProviders.FastaFileReader.KMerCreators;
 
 namespace Tests
 {

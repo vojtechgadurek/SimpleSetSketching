@@ -1,5 +1,5 @@
 ﻿using LittleSharp.Callables;
-using SimpleSetSketching.New.Hashing;
+using SimpleSetSketching.Hashing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

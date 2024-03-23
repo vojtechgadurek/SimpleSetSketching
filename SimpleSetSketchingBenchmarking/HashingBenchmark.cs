@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleSetSketching.New.Hashing;
-using SimpleSetSketching.New.Utils;
-using SimpleSetSketching.New.StreamProviders;
+using SimpleSetSketching.Hashing;
+using SimpleSetSketching.Utils;
+using SimpleSetSketching.StreamProviders;
 using System.Security.Cryptography.X509Certificates;
 using BenchmarkDotNet.Reports;
 

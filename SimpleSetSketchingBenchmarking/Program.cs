@@ -23,7 +23,7 @@ namespace MyBenchmarks
 			{
 				var summary = BenchmarkRunner.Run<HashingBenchmark>();
 			}
-			if (argsSet.Contains("toogler"))
+			if (argsSet.Contains("toggler"))
 			{
 				var summary = BenchmarkRunner.Run<BenchmarkToogling>();
 			}

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-	public class TooglerTest
+	public class TogglerTest
 	{
 		[Fact]
 		public void TestToogling()
@@ -29,7 +29,7 @@ namespace Tests
 
 			var tooglingAction = assignToArray.Construct();
 
-			Toogler<ulong[]> toogler = new Toogler<ulong[]>(bufferSize, table, hashFunctionList, tooglingAction);
+			Toggler<ulong[]> toggler = new Toggler<ulong[]>(bufferSize, table, hashFunctionList, tooglingAction);
 
 			ulong[] input = new ulong[size];
 			for (ulong i = 0; i < size; i++)
@@ -39,7 +39,7 @@ namespace Tests
 
 			ISketchStream<ulong> stream = new ArrayLongStream(input);
 
-			var sketch = toogler.ToogleStreamToTable(stream);
+			var sketch = toggler.ToggleStreamToTable(stream);
 			Assert.Equal(table, sketch);
 		}
 	}

@@ -1,18 +1,18 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Microsoft.Diagnostics.Tracing.Stacks;
 using SimpleSetSketching;
-using SimpleSetSketching.New.Testing;
+using SimpleSetSketching.Testing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleSetSketching.New.StreamProviders;
-using SimpleSetSketching.New.Tooglers;
-using SimpleSetSketching.New.Utils;
-using SimpleSetSketching.New.Hashing;
-using SimpleSetSketching.New.Sketchers;
-using HashingFunctionKind = SimpleSetSketching.New.Hashing.HashingFunctionProvider.HashingFunctionKind;
+using SimpleSetSketching.StreamProviders;
+using SimpleSetSketching.Togglers;
+using SimpleSetSketching.Utils;
+using SimpleSetSketching.Hashing;
+using SimpleSetSketching.Sketchers;
+using HashingFunctionKind = SimpleSetSketching.Hashing.HashingFunctionProvider.HashingFunctionKind;
 using System.Linq.Expressions;
 using LittleSharp;
 using Microsoft.Diagnostics.Tracing.Parsers.AspNet;
@@ -50,15 +50,15 @@ namespace SimpleSetSketchingBenchmarking
 		}
 
 		[Benchmark]
-		public ulong[] BenchmarkToogler()
+		public ulong[] BenchmarkToggler()
 		{
 			var table = new ulong[TableLength];
 
 			var hashFunction = HashingFunctionProvider.GetHashingFunction(hashingFunction, TableLength);
 
-			var toogler = new Toogler<ulong[]>(BufferLength, table, new[] { hashFunction }, SimpleSetSketchFunc.GetXorToogle<ulong[]>());
+			var toggler = new Toggler<ulong[]>(BufferLength, table, new[] { hashFunction }, SimpleSetSketchFunc.GetXorToggle<ulong[]>());
 
-			toogler.ToogleStreamToTable(Stream!);
+			toggler.ToggleStreamToTable(Stream!);
 			return table;
 
 		}
