@@ -17,7 +17,8 @@ namespace SimpleSetSketching.Sketchers
 		public static Expression<Action<ulong, ulong, TTable>> GetXorToggle<TTable>()
 		{
 			var a = CompiledActions.Create<ulong, ulong, TTable>(out var hash_, out var value_, out var table_);
-			a.S.Macro(out var table_T, table_.V.ToTable<ulong>())
+			a.S
+				.Macro(out var table_T, table_.V.ToTable<ulong>())
 				.Assign(table_T[hash_.V], table_T[hash_.V].V ^ value_.V);
 			return a.Construct();
 		}
@@ -27,14 +28,21 @@ namespace SimpleSetSketching.Sketchers
 			var f = CompiledFunctions.Create<ulong, TTable, bool>(out var hash_, out var table_);
 
 			f.S.Macro(out var table_T, table_.V.ToTable<ulong>())
-				.DeclareVariable(out var value_, table_T[hash_.V].V);
+				.DeclareVariable(out var value_, table_T[hash_.V].V)
+				.IfThen(
+					value_.V == 0,
+					new Scope().GoToEnd(f.S)
+					)
+				;
+
 			foreach (var hashFunc in hashingFunctions)
 			{
 				f.S.Function(hashFunc, value_.V, out var testedHash_)
 					.IfThen(testedHash_ == hash_.V,
 						new Scope()
 						.Assign(f.Output, true)
-						.GoToEnd(f.S));
+						.GoToEnd(f.S)
+						);
 			}
 			f.S.Assign(f.Output, false);
 			return f.Construct();
@@ -54,13 +62,13 @@ namespace SimpleSetSketching.Sketchers
 		)
 		{
 			var a = CompiledActions.Create<TTable, int, TSet>(out var table_, out var size_, out var set_);
-			a.S.DeclareVariable<int>(out var i_, 0)
-				.Macro(out var table_T, table_.V.ToTable<ulong>())
+			a.S.DeclareVariable<ulong>(out var i_, 0)
 				.While(
-					i_.V < size_.V,
+					i_.V < size_.V.Convert<ulong>(),
 					new Scope()
-						.Action(AddIfLooksPure, table_T[i_.V].V, set_.V, table_.V)
-						.Assign(i_, i_.V + 1));
+						.Action(AddIfLooksPure, i_.V, set_.V, table_.V)
+						.Assign(i_, i_.V + 1))
+				;
 			return a.Construct();
 		}
 		public static Expression<Action<ulong[], int, TSet, TSet, TTable>> OneDecodingStep<TSet, TTable>(
@@ -81,31 +89,31 @@ namespace SimpleSetSketching.Sketchers
 				.While(i_.V < numberOfItems_.V,
 					new Scope()
 						.This(out var S)
-						.AddFinalizer(new Scope().Assign(i_, i_.V + 1)
-						.Macro(out var pures_i, pures_T[i_.V])
-						.IfThen(S.Function(LooksPure, pures_i.V, table_.V),
+						.AddFinalizer(new Scope().Assign(i_, i_.V + 1))
+						.Macro(out var pure_, pures_T[i_.V])
+						.IfThen(!S.Function(LooksPure, pure_.V, table_.V),
 							new Scope().GoToEnd(S)
 						)
-						.Macro(out var x_, table_T[pures_i.V])
+						.DeclareVariable(out var x_, table_T[pure_.V].V)
+						.IfThenElse(
+							answerKeys_SET.Contains(x_.V),
+							new Scope().AddExpression(answerKeys_SET.Remove(x_.V)),
+							new Scope().AddExpression(answerKeys_SET.Add(x_.V)))
 						.Macro(out var _,
 							hashingFunctions
 							.Select(h => S.Function(h, x_.V))
 							.Select(v => S.Action(Toggle, v, x_.V, table_.V)).ToList()
 							)
-						.IfThenElse(
-							answerKeys_SET.Contains(x_.V),
-							new Scope().AddExpression(answerKeys_SET.Remove(x_.V)),
-							new Scope().AddExpression(answerKeys_SET.Add(x_.V))
-							)
+
 						.Macro(out var _,
 								hashingFunctions
 									.Select(h => S.Function(h, x_.V))
 									.Select(v => S.Action(AddIfLooksPure, v, nextStepPures_.V, table_.V)).ToList()
-									//This is extremely cursed
-									//Actions are added to expression list, thus by explicitly calling .ToList()
-									//We are adding these expression into S scope
-									)
-						)
+							//This is extremely cursed
+							//Actions are added to expression list, thus by explicitly calling .ToList()
+							//We are adding these expression into S scope
+							)
+
 					);
 			return f.Construct();
 		}

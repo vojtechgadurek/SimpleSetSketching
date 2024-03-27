@@ -12,14 +12,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace SimpleSetSketching.Decoders
 {
 	public class SimpleSetDecoder<TTable> : IDecoder<ulong>
+	where TTable : IEnumerable<ulong>
 	{
 
 		readonly Action<ulong[], int, HashSet<ulong>, HashSet<ulong>, TTable> OneDecodeStep;
 		readonly Action<TTable, int, HashSet<ulong>> InitDecoding;
-		readonly Func<TTable, bool> IsEmpty;
 
-		uint CurrentIteration = 0;
-		uint BatchSize = 1;
+		public uint CurrentIteration = 0;
+		public uint BatchSize = 1;
 
 		readonly TTable _table;
 		int _size;
@@ -36,15 +36,14 @@ namespace SimpleSetSketching.Decoders
 		public SimpleSetDecoder(
 			HashingFunctions hashingFunctions,
 			TTable table, int size,
-			Func<TTable, bool> isEmpty,
 			Expression<Action<ulong, ulong, TTable>> toggle
 			)
 		{
 			_table = table;
 			_size = size;
 			_pureBuffer = new ulong[size];
+			_pure = new HashSet<ulong>();
 			_answer = new HashSet<ulong>(_size);
-			IsEmpty = isEmpty;
 			Initialized = false;
 
 			var looksPure = SimpleSetSketchFunc.LooksPure<TTable>(hashingFunctions);
@@ -57,7 +56,7 @@ namespace SimpleSetSketching.Decoders
 		internal virtual bool ContinueCondition()
 		{
 			const uint maxIterations = 10000;
-			if (CurrentIteration++ < maxIterations)
+			if (CurrentIteration < maxIterations)
 			{
 				return true;
 			}
@@ -71,6 +70,7 @@ namespace SimpleSetSketching.Decoders
 			_pureNext = new HashSet<ulong>(_size);
 			CurrentIteration = 0;
 			InitDecoding(_table, _size, _pure);
+			Initialized = true;
 			return this;
 		}
 
@@ -89,13 +89,19 @@ namespace SimpleSetSketching.Decoders
 			{
 				for (int i = 0; i < BatchSize; i++)
 				{
-					int numberOfItems = _pure.Count();
+					int numberOfItems = 0;
+					foreach (var item in _pure)
+					{
+						_pureBuffer[numberOfItems] = item;
+						numberOfItems++;
+					}
 					OneDecodeStep(_pureBuffer, numberOfItems, _pureNext, _answer, _table);
+
 					_pure = _pureNext;
 					_pureNext = new HashSet<ulong>(_pure.Count * 2);
 					if (_pure.Count == 0)
 					{
-						if (IsEmpty(_table))
+						if (_table.All(x => x == 0))
 						{
 							State = DecodingState.Success;
 							return;
@@ -106,6 +112,7 @@ namespace SimpleSetSketching.Decoders
 							return;
 						}
 					}
+					CurrentIteration++;
 				}
 			}
 			State = DecodingState.Shotdown;

@@ -9,5 +9,7 @@ namespace SimpleSetSketching.Togglers
 	internal interface IToggler<TTable>
 	{
 		public TTable ToggleStreamToTable(ISketchStream<ValueType> stream);
+
+
 	}
 }

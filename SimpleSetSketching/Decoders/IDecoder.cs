@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.Decoders
 {
-	internal interface IDecoder<T>
+	public interface IDecoder<T>
 	{
 		void Decode();
 

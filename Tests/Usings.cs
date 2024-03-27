@@ -1,7 +1,5 @@
 global using Xunit;
 global using SimpleSetSketching.StreamProviders;
-global using SimpleSetSketching.StreamProviders.DNA.KMerCreators;
-global using SimpleSetSketching.StreamProviders.DNA;
 global using SimpleSetSketching.Utils;
 global using SimpleSetSketching.Hashing;
 global using SimpleSetSketching.Togglers;
@@ -12,3 +10,5 @@ global using System.Collections.Generic;
 global using System.Linq;
 global using System.Text;
 global using System.Linq.Expressions;
+global using SimpleSetSketching.SymmetricDifferenceFinders;
+

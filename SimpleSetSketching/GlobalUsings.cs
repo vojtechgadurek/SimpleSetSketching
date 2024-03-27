@@ -12,5 +12,6 @@ global using SimpleSetSketching.Hashing;
 global using SimpleSetSketching.StreamProviders;
 global using SimpleSetSketching.Utils;
 global using SimpleSetSketching.Togglers;
-
+global using SimpleSetSketching.Decoders;
+global using SimpleSetSketching.Sketchers;
 

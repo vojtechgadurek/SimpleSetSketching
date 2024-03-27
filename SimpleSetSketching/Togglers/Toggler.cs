@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.Togglers
 {
-	public class Toggler<TTable> : IToggler<ValueType, HashType, TTable>
+	public class Toggler<TTable> : IToggler<TTable>
 	{
 		int _bufferSize;
 		public readonly IEnumerable<Func<ValueType[], HashType[], int, HashType[]>> _hashToBufferFunctions;

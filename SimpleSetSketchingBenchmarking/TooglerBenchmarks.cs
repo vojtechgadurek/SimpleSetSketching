@@ -37,6 +37,7 @@ namespace SimpleSetSketchingBenchmarking
 		[ParamsSource(nameof(TableLengths))]
 		public ulong TableLength;
 
+
 		public static IEnumerable<ulong> TableLengths() => new ulong[] { 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576 };
 
 		public Random? random;
@@ -63,4 +64,70 @@ namespace SimpleSetSketchingBenchmarking
 
 		}
 	}
+
+	public class BenchmarkHashSetToogling
+	{
+
+		public const int Length = 1024;
+		public const int BufferLength = 4096;
+		public const int DataLength = Length * BufferLength;
+
+		[ParamsSource(nameof(TableLengths))]
+		public ulong TableLength;
+
+		public static IEnumerable<ulong> TableLengths() => new ulong[] { 1024, 65536, 262144, 524288 };
+
+		public Random? random;
+		public ArrayLongStream? Stream;
+
+		[Params(true, false)]
+		public bool FixedSize;
+
+		[IterationSetup]
+		public void IterationSetup()
+		{
+			random = new Random();
+			Stream = RandomStreamData.Create((ulong)DataLength, random);
+		}
+
+		void ToggleStreamToTable(ISketchStream<ulong> stream, HashSet<ulong> set)
+		{
+			ulong[] buffer = new ulong[BufferLength];
+			for (int i = 0; i < Length; i++)
+			{
+				stream.FillBuffer(buffer);
+				for (int j = 0; j < BufferLength; j++)
+				{
+					if (set.Contains(buffer[j]))
+					{
+						set.Remove(buffer[j]);
+					}
+					else
+					{
+						set.Add(buffer[j]);
+					}
+				}
+			}
+		}
+
+
+		[Benchmark]
+		public HashSet<ulong> BenchmarkToggler()
+		{
+			HashSet<ulong> set;
+			if (FixedSize)
+			{
+				set = new HashSet<ulong>((int)TableLength);
+			}
+			else
+			{
+				set = new HashSet<ulong>();
+			}
+
+			ToggleStreamToTable(Stream, set);
+			return set;
+
+		}
+	}
+
 }
