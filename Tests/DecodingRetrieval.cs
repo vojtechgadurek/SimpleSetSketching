@@ -3,9 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using static SimpleSetSketching.Hashing.HashingFunctionProvider;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tests
 {
@@ -27,9 +30,8 @@ namespace Tests
 		{
 			return GetBaseTestingConfiguration()
 				.SetHashingFunctionFactory((size) => ModuloHashingFunctionGenerator.Create((ulong)size, new Random()))
-				.SetDecoderFactory((table, size, hashingFunctions) => new OneHashIdentityXOR<ulong[]>(table, 4).Decoder)
-				.SetToggle(SimpleSetSketchFunc.GetXorToggle<ulong[]>())
-				.SetNumberOfHashingFunction(1)
+				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
+				.SetNumberOfHashingFunctions(1)
 				.Build(tableSize);
 		}
 
@@ -37,8 +39,32 @@ namespace Tests
 		{
 			return new TestDecoderFactoryConfiguration<ulong[], SimpleSetDecoder<ulong[]>>()
 				.SetTableFactory(size => new ulong[size])
-				.SetDecoderFactory((table, size, hashingFunctions) => new OneHashIdentityXOR<ulong[]>(table, 4).Decoder)
-				.SetDataFactory((size) => RandomDataGenerator.GenerateNotNullRandomUInt64(size, 0));
+				.SetDataFactory((size) => RandomDataGenerator.GenerateNotNullRandomUInt64(size, 0))
+				.SetToggle(SimpleSetSketchFunc.GetXorToggle<ulong[]>())
+;
+		}
+		private double Truncate(double x, int nDecimalPlaces)
+		{
+			return Math.Truncate(x * Math.Pow(10, nDecimalPlaces)) / Math.Pow(10, nDecimalPlaces);
+		}
+
+		private void PrintData(IEnumerable<(double, double)> data)
+		{
+			_output.WriteLine("Ratio table size and number of items, Retrieval rate");
+			foreach (var item in data)
+			{
+				_output.WriteLine($"{Truncate(item.Item1, 3)} {Truncate(item.Item2, 3)}");
+			}
+		}
+		private void PrintGraph(IEnumerable<(double, double)> data)
+		{
+			_output.WriteLine("\nGraph\n");
+			_output.WriteLine(new string('|', 20));
+			_output.WriteLine("maximum");
+			foreach (var item in data)
+			{
+				_output.WriteLine(new string('|', (int)(item.Item2 * 20)));
+			}
 		}
 
 		[Fact]
@@ -62,34 +88,71 @@ namespace Tests
 		{
 			var factory = GetSimpleDecodingFactory(tableSize);
 			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
+			var answer = finder.BatteryTest(0.1, 3, 0.1, 10);
+			var pipe = answer.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
+			PrintData(pipe);
+			PrintGraph(pipe);
+		}
+
+		[Theory]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
+		public void TestDifferentHashingFunction(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		{
+
+			var factory = GetBaseTestingConfiguration()
+				.SetHashingFunctionFactory((size) =>
+				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
+				.SetNumberOfHashingFunctions(1)
+				.SetSizeOfBuffer(1024)
+			.Build(2000);
+
+			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
 			var anwser = finder.BatteryTest(0.1, 3, 0.1, 10);
 			var pipe = anwser.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
+			PrintData(pipe);
+			PrintGraph(pipe);
+		}
 
+		[Theory]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
+		public void TestSSSAlgorithm(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		{
+			var factory = GetBaseTestingConfiguration()
+				.SetHashingFunctionFactory((size) =>
+				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
+				.SetNumberOfHashingFunctions(3)
+				.SetSizeOfBuffer(1024)
+			.Build(2000);
 
-			double TrunctateToNDecimalPlaces(double x, int nDecimalPlaces)
-			{
-				return Math.Truncate(x * Math.Pow(10, nDecimalPlaces)) / Math.Pow(10, nDecimalPlaces);
-			}
+			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
+			var anwser = finder.BatteryTest(0.75, 1, 0.005, 10);
+			var pipe = anwser.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
+			PrintData(pipe);
+			PrintGraph(pipe);
+		}
 
-			_output.WriteLine("Table size, Retrieval rate");
-			foreach (var item in pipe)
-			{
-				_output.WriteLine($"{TrunctateToNDecimalPlaces(item.Item1, 2)} " +
-					$"{TrunctateToNDecimalPlaces(item.Item2, 2)}"
-					);
+		[Theory]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
+		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
+		public void TestSSSAlgorithm5(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		{
+			var factory = GetBaseTestingConfiguration()
+				.SetHashingFunctionFactory((size) =>
+				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
+				.SetNumberOfHashingFunctions(2)
+				.SetSizeOfBuffer(1024)
+			.Build(2000);
 
-			}
-
-			_output.WriteLine("\nGraph\n");
-			_output.WriteLine(new string('|', 20));
-			_output.WriteLine("maximum");
-			foreach (var item in pipe)
-			{
-				_output.WriteLine(new string('|', (int)(item.Item2 * 20)));
-			}
-
-
-
+			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
+			var anwser = finder.BatteryTest(0.75, 1, 0.005, 10);
+			var pipe = anwser.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
+			PrintData(pipe);
+			PrintGraph(pipe);
 		}
 
 

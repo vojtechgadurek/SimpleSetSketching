@@ -17,9 +17,10 @@ namespace SimpleSetSketching.Testing
 	{
 		Func<int, TTable>? _tableFactory;
 		Func<int, HashingFunctionExpression>? _hashingFunctionFactory;
-		Func<TTable, int, HashingFunctions, TDecoder>? _decoderFactory;
+		Func<TTable, int, HashingFunctions, Expression<Action<ulong, ulong, TTable>>, TDecoder>? _decoderFactory;
 		Func<int, ulong[]>? _dataFactory;
 		Expression<Action<ulong, ulong, TTable>>? _toggle;
+		int _sizeOfBuffer = 1024;
 		int? _numberOfHashingFunction = null;
 
 		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetTableFactory(Func<int, TTable> tableFactory)
@@ -34,7 +35,7 @@ namespace SimpleSetSketching.Testing
 			return this;
 		}
 
-		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetDecoderFactory(Func<TTable, int, HashingFunctions, TDecoder> decoderFactory)
+		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetDecoderFactory(Func<TTable, int, HashingFunctions, Expression<Action<ulong, ulong, TTable>>, TDecoder> decoderFactory)
 		{
 			_decoderFactory = decoderFactory;
 			return this;
@@ -52,9 +53,15 @@ namespace SimpleSetSketching.Testing
 			return this;
 		}
 
-		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetNumberOfHashingFunction(int numberOfHashingFunction)
+		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetNumberOfHashingFunctions(int numberOfHashingFunction)
 		{
 			_numberOfHashingFunction = numberOfHashingFunction;
+			return this;
+		}
+
+		public TestDecoderFactoryConfiguration<TTable, TDecoder> SetSizeOfBuffer(int sizeOfBuffer)
+		{
+			_sizeOfBuffer = sizeOfBuffer;
 			return this;
 		}
 
@@ -71,7 +78,8 @@ namespace SimpleSetSketching.Testing
 				_decoderFactory,
 				_dataFactory,
 				sizeOfTable,
-				_numberOfHashingFunction.Value
+				_numberOfHashingFunction.Value,
+				_sizeOfBuffer
 				);
 		}
 
@@ -86,21 +94,23 @@ namespace SimpleSetSketching.Testing
 	{
 		readonly Func<int, TTable> _tableFactory;
 		readonly Func<int, HashingFunctionExpression> _hashingFunctionFactory;
-		readonly Func<TTable, int, HashingFunctions, TDecoder> _decoderFactory;
+		readonly Func<TTable, int, HashingFunctions, Expression<Action<ulong, ulong, TTable>>, TDecoder> _decoderFactory;
 		readonly Func<int, ulong[]> _dataFactory;
 		readonly Expression<Action<ulong, ulong, TTable>> _toggle;
 
 		readonly public int SizeOfTable;
 		readonly int? _numberOfHashingFunction = null;
+		readonly int? _sizeOfBuffer;
 
 		public TestDecoderFactory(
 			Func<int, TTable> tableFactory,
 			Func<int, HashingFunctionExpression> hashingFunctionFactory,
 			Expression<Action<ulong, ulong, TTable>> toggle,
-			Func<TTable, int, HashingFunctions, TDecoder> decoderFactory,
+			Func<TTable, int, HashingFunctions, Expression<Action<ulong, ulong, TTable>>, TDecoder> decoderFactory,
 			Func<int, ulong[]> dataFactory,
 			int size,
-			int numberOfHashingFunction
+			int numberOfHashingFunction,
+			int sizeOfBuffer = 1024
 			)
 		{
 			_tableFactory = tableFactory;
@@ -110,6 +120,8 @@ namespace SimpleSetSketching.Testing
 			_toggle = toggle;
 			SizeOfTable = size;
 			_numberOfHashingFunction = numberOfHashingFunction;
+			_sizeOfBuffer = sizeOfBuffer;
+
 		}
 
 
@@ -119,13 +131,13 @@ namespace SimpleSetSketching.Testing
 			HashingFunctions hashingFunctions =
 				Enumerable
 					.Range(0, (int)_numberOfHashingFunction!)
-					.Select(_ => _hashingFunctionFactory(SizeOfTable));
+					.Select(_ => _hashingFunctionFactory(SizeOfTable)).ToList();
 
-			TDecoder decoder = _decoderFactory(table, SizeOfTable, hashingFunctions);
+			TDecoder decoder = _decoderFactory(table, SizeOfTable, hashingFunctions, _toggle);
 			ulong[] data = _dataFactory(nOfItemsInSymmetricDifference);
 			ISketchStream<ulong> sketchStream = new ArrayLongStream(data);
 
-			Toggler<TTable> toggler = new Toggler<TTable>(SizeOfTable, table, hashingFunctions, _toggle);
+			Toggler<TTable> toggler = new Toggler<TTable>((int)_sizeOfBuffer!, table, hashingFunctions, _toggle);
 
 			toggler.ToggleStreamToTable(sketchStream);
 

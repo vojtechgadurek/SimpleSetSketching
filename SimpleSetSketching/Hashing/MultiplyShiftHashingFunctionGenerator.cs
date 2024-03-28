@@ -15,7 +15,7 @@ namespace SimpleSetSketching.Hashing
 		static Random _random = new Random();
 		public static HashingFunctionExpression CreateHashFunction(ulong multiply, ulong size)
 		{
-			var kMerLength = BitOperations.TrailingZeroCount(size);
+			var kMerLength = BitOperations.LeadingZeroCount(size);
 			var f = new CompiledFunction<ulong, ulong>(out var value_);
 
 			f.S.Assign(f.Output, (value_.V * multiply >> (64 - kMerLength)) % size);
