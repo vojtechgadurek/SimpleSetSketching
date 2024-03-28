@@ -25,17 +25,15 @@ namespace Tests
 
 		public TestDecoderFactory<ulong[], SimpleSetDecoder<ulong[]>> GetSimpleDecodingFactory(int tableSize)
 		{
-			return new TestDecoderFactoryConfiguration<ulong[], SimpleSetDecoder<ulong[]>>()
-				.SetTableFactory(size => new ulong[size])
+			return GetBaseTestingConfiguration()
 				.SetHashingFunctionFactory((size) => ModuloHashingFunctionGenerator.Create((ulong)size, new Random()))
 				.SetDecoderFactory((table, size, hashingFunctions) => new OneHashIdentityXOR<ulong[]>(table, 4).Decoder)
-				.SetDataFactory((size) => RandomDataGenerator.GenerateNotNullRandomUInt64(size, 0))
 				.SetToggle(SimpleSetSketchFunc.GetXorToggle<ulong[]>())
 				.SetNumberOfHashingFunction(1)
 				.Build(tableSize);
 		}
 
-		public TestDecoderFactoryConfiguration<ulong[], SimpleSetDecoder<ulong[]>> GetTestingConfiguration()
+		public TestDecoderFactoryConfiguration<ulong[], SimpleSetDecoder<ulong[]>> GetBaseTestingConfiguration()
 		{
 			return new TestDecoderFactoryConfiguration<ulong[], SimpleSetDecoder<ulong[]>>()
 				.SetTableFactory(size => new ulong[size])
