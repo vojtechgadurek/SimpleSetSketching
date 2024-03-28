@@ -16,7 +16,7 @@ namespace SimpleSetSketching.SymmetricDifferenceFinders
 		public OneHashIdentityXOR(TTable table, int bufferSize)
 		{
 			int size = table.Count();
-			var identityHashFunc = ModuloHashingFunctionProvider.Create((ulong)size, new Random());
+			var identityHashFunc = ModuloHashingFunctionGenerator.Create((ulong)size, new Random());
 			var togglingAction = SimpleSetSketchFunc.GetXorToggle<TTable>();
 
 			Toggler = new Toggler<TTable>(bufferSize, table, new HashingFunctionExpression[] { identityHashFunc }, togglingAction);

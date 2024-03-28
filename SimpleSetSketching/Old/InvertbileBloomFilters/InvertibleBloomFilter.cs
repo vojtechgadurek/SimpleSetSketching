@@ -16,31 +16,31 @@
 //		{
 //			i = (i ^ (i >> 33)) * 0x4A9D1C4D699E4B36UL >> 32;
 //			i = (i ^ (i >> 29)) * 0x32BBD84192AABFEDUL >> 31;
-//			return i & (Size - 1);
+//			return i & (SizeOfTable - 1);
 //		}
 //		record struct IBMFCell(int Count, ulong KeySum, ulong ValueSum, ulong HashKeySum);
 //		IBMFCell[] _data;
 //		const int _hashCount = 5;
 //		ulong[] _hashes = new ulong[_hashCount];
-//		ulong Size = 1;
+//		ulong SizeOfTable = 1;
 
 //		public InvertibleBloomFilter(ulong size)
 //		{
 
-//			while (Size < size)
+//			while (SizeOfTable < size)
 //			{
-//				Size <<= 1;
+//				SizeOfTable <<= 1;
 //			}
 
-//			_data = new IBMFCell[Size];
-//			for (ulong i = 0; i < Size; i++)
+//			_data = new IBMFCell[SizeOfTable];
+//			for (ulong i = 0; i < SizeOfTable; i++)
 //			{
 //				_data[i] = new IBMFCell(0, 0, 0, 0);
 //			}
 //		}
 //		public void Hashing(in ulong key, ulong[] hashes)
 //		{
-//			HashFunctions.HashToTable(key, hashes, Size);
+//			HashFunctions.HashToTable(key, hashes, SizeOfTable);
 //		}
 //		public void Insert(ulong key, ulong value)
 //		{

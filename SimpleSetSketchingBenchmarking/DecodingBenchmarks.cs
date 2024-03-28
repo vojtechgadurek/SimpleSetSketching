@@ -9,10 +9,5 @@ namespace SimpleSetSketchingBenchmarking
 {
 	public class DecodingBenchmarks
 	{
-		public class TestEnviroment
-		{
-			ulong[] table;
-			ArrayLongStream longStream = new ArrayLongStream();
-		}
 	}
 }

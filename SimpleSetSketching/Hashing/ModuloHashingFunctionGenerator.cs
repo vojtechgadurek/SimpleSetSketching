@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SimpleSetSketching.Hashing
 {
-	internal class ModuloHashingFunctionProvider : IHashingFunctionProvider
+	public class ModuloHashingFunctionGenerator : IHashingFunctionProvider
 	{
 		public HashingFunctionExpression GetHashingFunction(ulong size, Random random)
 		{

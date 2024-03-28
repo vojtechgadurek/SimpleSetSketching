@@ -17,6 +17,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\LittleSharp\LittleSharp\LittleSharp.csproj" />
-		<ProjectReference Include="..\SimpleSetSketchingFSharp\SimpleSetSketchingFSharp.fsproj" />
 	</ItemGroup>
 </Project>

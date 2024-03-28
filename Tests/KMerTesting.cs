@@ -1,5 +1,4 @@
-﻿using Microsoft.FSharp.Core;
-using SimpleSetSketching;
+﻿using SimpleSetSketching;
 using System;
 using System.Collections.Generic;
 using System.Linq;

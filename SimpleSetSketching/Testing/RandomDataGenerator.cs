@@ -123,5 +123,19 @@ namespace SimpleSetSketching.Testing
 		{
 			return list.OrderBy(x => random.Next()).ToList();
 		}
+
+		public static ulong[] GenerateNotNullRandomUInt64(int lenghtOfArray, int nullValue, Random? random = null)
+		{
+			if (random == null)
+			{
+				random = new Random();
+			}
+			var data = new ulong[lenghtOfArray];
+			for (int i = 0; i < lenghtOfArray; i++)
+			{
+				data[i] = GenerateNotNullRandomUInt64((ulong)nullValue, random);
+			}
+			return data;
+		}
 	}
 }

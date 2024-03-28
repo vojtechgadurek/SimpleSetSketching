@@ -37,7 +37,7 @@ namespace SimpleSetSketching.Hashing
 			var index = MersenePrimes.FindIndex(x => x > size);
 			if (index == -1)
 			{
-				throw new InvalidOperationException("Size is too big");
+				throw new InvalidOperationException("SizeOfTable is too big");
 			}
 			return MersenePrimes[index];
 		}

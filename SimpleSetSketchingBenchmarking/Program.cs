@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using SimpleSetSketching;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Microsoft.FSharp.Core;
 using SimpleSetSketchingBenchmarking;
 using Gee.External.Capstone.X86;
 

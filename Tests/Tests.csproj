@@ -25,4 +25,8 @@
 		<ProjectReference Include="..\SimpleSetSketching\SimpleSetSketching.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="CorrectnessTesting\" />
+	</ItemGroup>
+
 </Project>
