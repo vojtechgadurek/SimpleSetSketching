@@ -4,14 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleSetSketching.Decoders
+namespace SimpleSetSketching.InvertiblBloomLookupTable
 {
-	public enum DecodingState
+	public class DecoderFactory
 	{
-		Decoding,
-		Success,
-		Failed,
-		Shotdown,
-		NotStarted
 	}
 }

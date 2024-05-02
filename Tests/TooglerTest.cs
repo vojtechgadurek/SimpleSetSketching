@@ -9,30 +9,33 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    public class TogglerTest
-    {
-        [Fact]
-        public void TestToogling()
-        {
-            // Test toogling by iserting identity hash function and assign toogling function
-            // Thus [0, 1, 2, 3, 4] should be [0, 1, 2, 3, 4]
-            ulong size = 1025;
-            int bufferSize = 4;
+	public class TogglerTest
+	{
+		[Fact]
+		public void TestToogling()
+		{
+			// Test toogling by iserting identity hash function and assign toogling function
+			// Thus [0, 1, 2, 3, 4] should be [0, 1, 2, 3, 4]
+			ulong size = 1024;
+			int bufferSize = 4;
 
-            ulong[] table = new ulong[size];
+			ulong[] table = new ulong[size];
 
-            Toggler<ulong[]> toggler = new OneHashIdentityXOR<ulong[]>(table, bufferSize).Toggler;
+			Toggler<ulong[]> toggler = new OneHashIdentityXOR<ulong[]>(table, bufferSize).Toggler;
 
-            ulong[] input = new ulong[size];
-            for (ulong i = 0; i < size; i++)
-            {
-                input[i] = i;
-            }
+			ulong[] input = new ulong[size];
+			for (ulong i = 0; i < size; i++)
+			{
+				input[i] = i;
+			}
 
-            ISketchStream<ulong> stream = new ArrayLongStream(input);
+			ISketchStream<ulong> stream = new ArrayLongStream(input);
 
-            var sketch = toggler.ToggleStreamToTable(stream);
-            Assert.Equal(table, sketch);
-        }
-    }
+			var sketch = toggler.ToggleStreamToTable(stream);
+			Assert.Equal(table, sketch);
+		}
+
+		public void
+
+	}
 }

@@ -7,11 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using SimpleSetSketching.StreamProviders.FastaFileReader;
 using SimpleSetSketching.StreamProviders.FastaFileReader.KMerCreators;
+using Xunit.Abstractions;
 
 namespace Tests
 {
 	public class KMerTesting
 	{
+		ITestOutputHelper _output;
+		public KMerTesting(ITestOutputHelper output)
+		{
+			_output = output;
+		}
 		public string GetKmerComplement(string KMer)
 		{
 			char[] complement = new char[KMer.Length];
@@ -39,8 +45,8 @@ namespace Tests
 		}
 		public static IEnumerable<object[]> ComplementDataTest()
 		{
-			yield return new object[] { "A", "ToTable" };
-			yield return new object[] { "ToTable", "A" };
+			yield return new object[] { "A", "T" };
+			yield return new object[] { "T", "A" };
 			yield return new object[] { "G", "C" };
 			yield return new object[] { "C", "G" };
 			yield return new object[] { "AAAGGG", "CCCTTT" };
@@ -55,21 +61,64 @@ namespace Tests
 
 		[Theory]
 		[InlineData("CCTC", 1)]
-		[InlineData("CCTCGCCGA", 3)]
-		[InlineData("CCTAGCCAAAAG", 5)]
-		public void TestKMerSimple(string dna, int k_merSize)
+		[InlineData("CCCCCCGA", 3)]
+		[InlineData("CCCCCCCCAAAAG", 5)]
+		public void TestKMerSimple(string dna, int kMerSize)
 		{
-			KMerCreator kMerCreator = new KMerCreator(k_merSize);
-			KMerWithComplement kMer = InitiliazeKMerWithComplement(dna.Substring(0, k_merSize), kMerCreator);
+			KMerCreator kMerCreator = new KMerCreator(kMerSize);
+			KMerWithComplement kMer = InitiliazeKMerWithComplement(dna.Substring(0, kMerSize), kMerCreator);
 
-			for (int i = 0; i < dna.Length - k_merSize; i++)
+			for (int i = 0; i < dna.Length - kMerSize; i++)
 			{
-				string kmerExpected = dna.Substring(i, k_merSize);
-				Assert.Equal(kmerExpected, kMerCreator.TranslateKMerToString(kMer.KMer));
-				kMer = kMerCreator.PushSymbolIn(kMer, kMerCreator.TranslateCharToSymbol(dna[i]));
+				int index = kMerSize + i;
+				string kmerExpected = dna.Substring(i, kMerSize);
+				string answer = kMerCreator.TranslateKMerToString(kMer.KMer);
+				_output.WriteLine($"{kmerExpected} {answer}");
+				Assert.Equal(kmerExpected, answer);
+				var symbolPushedIn = kMerCreator.TranslateCharToSymbol(dna[index]);
+				kMer = kMerCreator.PushSymbolIn(kMer, symbolPushedIn);
 			}
 		}
 
+		[Theory]
+		[InlineData("CCTC", 1)]
+		[InlineData("CCCCCCGA", 3)]
+		[InlineData("CCCCCCCCAAAAG", 5)]
+		public void TestKMerComplementSimple(string dna, int kMerSize)
+		{
+			KMerCreator kMerCreator = new KMerCreator(kMerSize);
+			KMerWithComplement kMer = InitiliazeKMerWithComplement(dna.Substring(0, kMerSize), kMerCreator);
+
+			for (int i = 0; i < dna.Length - kMerSize; i++)
+			{
+				int index = kMerSize + i;
+				string kmerExpected = GetKmerComplement(dna.Substring(i, kMerSize));
+				string answer = kMerCreator.TranslateKMerToString(kMer.Complement);
+				_output.WriteLine($"{kmerExpected} {answer}");
+				Assert.Equal(kmerExpected, answer);
+				var symbolPushedIn = kMerCreator.TranslateCharToSymbol(dna[index]);
+				kMer = kMerCreator.PushSymbolIn(kMer, symbolPushedIn);
+			}
+		}
+
+		[Theory]
+		[InlineData("A", "A")]
+		[InlineData("C", "C")]
+		[InlineData("T", "A")]
+		[InlineData("G", "C")]
+		[InlineData("AAAA", "AAAA")]
+		[InlineData("CCCC", "CCCC")]
+		[InlineData("TTTT", "AAAA")]
+		[InlineData("GGGG", "CCCC")]
+		[InlineData("TTTG", "CAAA")]
+
+		public void TestKMerCanonicalOrder(string kMer, string testCanonical)
+		{
+			var kMerCreator = new KMerCreator(kMer.Length);
+			var value = InitiliazeKMerWithComplement(kMer, kMerCreator);
+			var canonical = value.GetCanonical();
+			Assert.Equal(kMerCreator.TranslateKMerToString(canonical), testCanonical);
+		}
 
 		public KMer InitializeKmer(string kMer, KMerCreator kMerCreator)
 		{

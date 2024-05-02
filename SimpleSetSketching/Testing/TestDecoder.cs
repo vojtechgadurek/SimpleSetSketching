@@ -1,4 +1,5 @@
-﻿using LittleSharp.Literals;
+﻿using Iced.Intel;
+using LittleSharp.Literals;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -176,16 +177,42 @@ namespace SimpleSetSketching.Testing
 			}
 			return results;
 		}
-	}
+
+		public double FindOptimalSize(
+			int numberOfTestsInEachStep,
+			double lowerBound,
+			double upperBound
+			)
+		{
+			double stepRation = 0.1;
+			double step = (lowerBound + upperBound) * stepRation;
+			double expectedAccuracyBound = 0.999;
+			while (true)
+			{
+				double mid = (lowerBound + upperBound) / 2;
+				var decodingResults = BatteryTest(lowerBound, upperBound, step, numberOfTestsInEachStep);
+				var averageRetrievalRate = decodingResults.Select(x => (x.Key, x.Value.Average(decodingBattery => RetrievalRate(decodingBattery))));
+				var x = averageRetrievalRate.Where(x => x.Item2 > expectedAccuracyBound).MinBy(x => x.Item1);
+
+			}
+		}
+
+		private double RetrievalRate(DecodingResult<TTable, TDecoder> decoder)
+		{
+			return (double)decoder.Decoder.GetCurrentDecodedValues().Count() / (double)decoder.NumberOfItemsInSymmetricDifference;
+		}
 
 
-	struct DecodeData
-	{
-		ulong[] data;
-	}
 
 
-	interface IDecodeDataProvider
-	{
+		struct DecodeData
+		{
+			ulong[] data;
+		}
+
+
+		interface IDecodeDataProvider
+		{
+		}
 	}
 }

@@ -4,14 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleSetSketching.Decoders
+namespace Tests.kMer
 {
-	public enum DecodingState
+	internal class fastaFileReadTests
 	{
-		Decoding,
-		Success,
-		Failed,
-		Shotdown,
-		NotStarted
 	}
 }

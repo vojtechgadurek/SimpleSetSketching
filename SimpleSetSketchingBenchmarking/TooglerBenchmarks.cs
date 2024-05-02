@@ -12,6 +12,8 @@ using SimpleSetSketching.Togglers;
 using SimpleSetSketching.Utils;
 using SimpleSetSketching.Hashing;
 using SimpleSetSketching.Sketchers;
+using SimpleSetSketching.InvertibleBloomLookupTable.Tables;
+
 using HashingFunctionKind = SimpleSetSketching.Hashing.HashingFunctionProvider.HashingFunctionKind;
 using System.Linq.Expressions;
 using LittleSharp;
@@ -38,7 +40,8 @@ namespace SimpleSetSketchingBenchmarking
 		public ulong TableLength;
 
 
-		public static IEnumerable<ulong> TableLengths() => new ulong[] { 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576 };
+		public static IEnumerable<ulong> TableLengths()
+			=> new ulong[] { 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576 };
 
 		public Random? random;
 		public ArrayLongStream? Stream;
@@ -49,6 +52,8 @@ namespace SimpleSetSketchingBenchmarking
 			random = new Random();
 			Stream = RandomStreamData.Create((ulong)DataLength, random);
 		}
+
+
 
 		[Benchmark]
 		public ulong[] BenchmarkToggler()
@@ -61,11 +66,23 @@ namespace SimpleSetSketchingBenchmarking
 
 			toggler.ToggleStreamToTable(Stream!);
 			return table;
+		}
 
+		[Benchmark]
+		public BasicHypergraphTable BenchmarkIBLTBenchmark()
+		{
+			var table = new BasicHypergraphTable((int)TableLength);
+
+			var hashFunction = HashingFunctionProvider.GetHashingFunction(hashingFunction, TableLength);
+
+			var toggler = new Toggler<BasicHypergraphTable>(BufferLength, table, new[] { hashFunction }, BasicHypergraphTable.GetTogglingAction());
+
+			toggler.ToggleStreamToTable(Stream!);
+			return table;
 		}
 	}
 
-	public class BenchmarkHashSetToogling
+	public class BenchmarkHashSetToggling
 	{
 
 		public const int Length = 1024;

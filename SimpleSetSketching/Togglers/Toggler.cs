@@ -20,13 +20,40 @@ namespace SimpleSetSketching.Togglers
 		public readonly IEnumerable<Func<ValueType[], HashType[], int, HashType[]>> _hashToBufferFunctions;
 		public readonly Action<HashType[], ValueType[], int, TTable> _toggleToBufferAction;
 		readonly TTable _table;
-		public Toggler(int bufferSize, TTable table, HashingFunctions hashFunctions, Expression<Action<HashType, ValueType, TTable>> tooglingAction)
+		public Toggler
+		(
+			int bufferSize,
+			TTable table,
+			HashingFunctions hashFunctions,
+			Expression<Action<HashType, ValueType, TTable>> togglingAction
+		)
 		{
 			_bufferSize = bufferSize;
-			_hashToBufferFunctions = hashFunctions.Select(HashingFunctionProvider.BufferHashingFunction).Select(f => f.Compile()).ToList();
-			_toggleToBufferAction = BufferToggleFunction(tooglingAction).Compile();
+
+			_hashToBufferFunctions = hashFunctions.
+				Select(HashingFunctionProvider.BufferHashingFunction)
+				.Select(f => f.Compile())
+				.ToList();
+
+			_toggleToBufferAction =
+				BufferToggleFunction(togglingAction).Compile();
 			_table = table;
 		}
+
+		public Toggler
+		(
+			int bufferSize,
+			TTable table,
+			IEnumerable<Func<ValueType[], HashType[], int, HashType[]>> hashToBufferFunctions,
+			Action<HashType[], ValueType[], int, TTable> toggleToBufferActions
+		)
+		{
+			_bufferSize = bufferSize;
+			_hashToBufferFunctions = hashToBufferFunctions;
+			_toggleToBufferAction = toggleToBufferActions;
+			_table = table;
+		}
+
 
 		public static Expression<Action<HashType[], ValueType[], int, TTable>> BufferToggleFunction(
 			Expression<Action<HashType, ValueType, TTable>> _toggleAction)

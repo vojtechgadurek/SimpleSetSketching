@@ -32,11 +32,8 @@ namespace SimpleSetSketching.StreamProviders.FastaFileReader.KMerCreators
 
 		public KMerWithComplement PushSymbolIn(KMerWithComplement kMerWithComplement, Symbol symbol)
 		{
-			var val = Convert.ToString((long)kMerWithComplement.KMer.GetBinaryRepresentation(), 2);
-			var value = PushSymbolFromEnd(kMerWithComplement.KMer, symbol);
-			val = Convert.ToString((long)value.GetBinaryRepresentation(), 2);
-			var complement = PushSymbolFromStart(kMerWithComplement.Complement, GetSymbolComplement(symbol));
-
+			var value = PushSymbolFromStart(kMerWithComplement.KMer, symbol);
+			var complement = PushSymbolFromEnd(kMerWithComplement.Complement, GetSymbolComplement(symbol));
 			return new KMerWithComplement(value, complement);
 		}
 
@@ -164,13 +161,13 @@ namespace SimpleSetSketching.StreamProviders.FastaFileReader.KMerCreators
 		public KMer PushSymbolFromStart(KMer kMer, Symbol symbol)
 		{
 			kMer = RightShift(kMer);
-			kMer = ChangeFirstSymbol(kMer, symbol);
+			kMer = ChangeLastSymbol(kMer, symbol);
 			return kMer;
 		}
 		public KMer PushSymbolFromEnd(KMer kMer, Symbol symbol)
 		{
 			kMer = LeftShift(kMer);
-			kMer = ChangeLastSymbol(kMer, symbol);
+			kMer = ChangeFirstSymbol(kMer, symbol);
 			return kMer;
 		}
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -129,7 +130,7 @@ namespace Tests
 			.Build(2000);
 
 			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
-			var anwser = finder.BatteryTest(0.75, 1, 0.005, 10);
+			var anwser = finder.BatteryTest(0.75, 1, 0.01, 10);
 			var pipe = anwser.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
 			PrintData(pipe);
 			PrintGraph(pipe);
@@ -149,12 +150,61 @@ namespace Tests
 			.Build(2000);
 
 			var finder = new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(factory);
-			var anwser = finder.BatteryTest(0.75, 1, 0.005, 10);
+			var anwser = finder.BatteryTest(0.20, 1, 0.005, 10);
 			var pipe = anwser.Select(x => (x.Key, x.Value.Select(RetrievalRate).Average())).OrderBy(x => x.Item1);
 			PrintData(pipe);
 			PrintGraph(pipe);
 		}
 
+
+		public ulong[] GetTableWithRandomMess(int length, double fullness)
+		{
+			var table = new ulong[length];
+			var random = new Random();
+			for (int i = 0; i < length * fullness; i++)
+			{
+				table[i] = (ulong)random.NextInt64();
+			}
+
+			random.Shuffle(table);
+			return table;
+		}
+
+		public static IEnumerable<object[]> GetFullness()
+		{
+			for (double i = 0; i < 0.5; i += 0.05)
+			{
+				yield return new object[] { i };
+			}
+
+		}
+
+
+		public void TestSSSAlgorithmMessStability()
+		{
+			var hashingFunctionKind = HashingFunctionProvider.HashingFunctionKind.MultiplyShift;
+
+			var pipe = GetFullness().Select(
+				fullness => ((double)fullness[0],
+				new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(
+					GetBaseTestingConfiguration()
+					.SetHashingFunctionFactory((size) =>
+					HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+					.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
+					.SetNumberOfHashingFunctions(3)
+					.SetTableFactory((size) => GetTableWithRandomMess(size, ((double)fullness[0])))
+					.SetSizeOfBuffer(1024)
+					.Build(2000))
+					.BatteryTest(0.20, 1, 0.005, 10)
+						.Select(x => (x.Key, x.Value.Average(RetrievalRate)))
+						.Where(x => x.Item2 >= 0.9999)
+						.Max(x => (x.Key)))
+				)
+				;
+
+			PrintData(pipe);
+			PrintGraph(pipe);
+		}
 
 	}
 }
