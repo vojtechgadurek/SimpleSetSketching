@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LittleSharp", "..\LittleSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LittleSharpTests", "..\LittleSharp\LittleSharpTests\LittleSharpTests.csproj", "{AED9BFC8-34FB-4E39-A948-9D05D0B6F73A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LashHash", "..\LashHash\LashHash\LashHash.csproj", "{6FA7BB35-5285-444D-8915-28AA87471F5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlashHash", "..\FlashHash\FlashHash\FlashHash.csproj", "{DE2CA4F5-B069-4B1E-B75B-C15B23D5BCEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{AED9BFC8-34FB-4E39-A948-9D05D0B6F73A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AED9BFC8-34FB-4E39-A948-9D05D0B6F73A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AED9BFC8-34FB-4E39-A948-9D05D0B6F73A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FA7BB35-5285-444D-8915-28AA87471F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FA7BB35-5285-444D-8915-28AA87471F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FA7BB35-5285-444D-8915-28AA87471F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FA7BB35-5285-444D-8915-28AA87471F5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE2CA4F5-B069-4B1E-B75B-C15B23D5BCEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE2CA4F5-B069-4B1E-B75B-C15B23D5BCEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE2CA4F5-B069-4B1E-B75B-C15B23D5BCEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE2CA4F5-B069-4B1E-B75B-C15B23D5BCEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

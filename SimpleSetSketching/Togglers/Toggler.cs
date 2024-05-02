@@ -1,5 +1,5 @@
 ﻿using LittleSharp.Literals;
-using SimpleSetSketching.Hashing;
+using LittleSharp.Utils;
 using SimpleSetSketching.StreamProviders;
 using SimpleSetSketching.Utils;
 using System;
@@ -17,7 +17,7 @@ namespace SimpleSetSketching.Togglers
 	public class Toggler<TTable> : IToggler<TTable>
 	{
 		int _bufferSize;
-		public readonly IEnumerable<Func<ValueType[], HashType[], int, HashType[]>> _hashToBufferFunctions;
+		public readonly IEnumerable<Action<ValueType[], HashType[], int, int>> _hashToBufferFunctions;
 		public readonly Action<HashType[], ValueType[], int, TTable> _toggleToBufferAction;
 		readonly TTable _table;
 		public Toggler
@@ -31,7 +31,7 @@ namespace SimpleSetSketching.Togglers
 			_bufferSize = bufferSize;
 
 			_hashToBufferFunctions = hashFunctions.
-				Select(HashingFunctionProvider.BufferHashingFunction)
+				Select(Buffers.BufferFunction)
 				.Select(f => f.Compile())
 				.ToList();
 
@@ -44,7 +44,7 @@ namespace SimpleSetSketching.Togglers
 		(
 			int bufferSize,
 			TTable table,
-			IEnumerable<Func<ValueType[], HashType[], int, HashType[]>> hashToBufferFunctions,
+			IEnumerable<Action<ValueType[], HashType[], int, int>> hashToBufferFunctions,
 			Action<HashType[], ValueType[], int, TTable> toggleToBufferActions
 		)
 		{
@@ -88,7 +88,7 @@ namespace SimpleSetSketching.Togglers
 				if (truncatedArray.Size <= 0) break;
 				foreach (var func in _hashToBufferFunctions)
 				{
-					func(truncatedArray.Array, hashesBuffer, truncatedArray.Size);
+					func(truncatedArray.Array, hashesBuffer, 0, truncatedArray.Size);
 					_toggleToBufferAction(hashesBuffer, truncatedArray.Array, truncatedArray.Size, _table);
 				}
 			}

@@ -8,10 +8,12 @@ global using Set = System.Collections.Generic.HashSet<ulong>;
 global using LittleSharp;
 global using LittleSharp.Callables;
 global using LittleSharp.Literals;
-global using SimpleSetSketching.Hashing;
 global using SimpleSetSketching.StreamProviders;
 global using SimpleSetSketching.Utils;
 global using SimpleSetSketching.Togglers;
 global using SimpleSetSketching.Decoders;
 global using SimpleSetSketching.Sketchers;
+global using FlashHash;
+global using FlashHash.SchemesAndFamilies;
+
 

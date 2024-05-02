@@ -18,10 +18,6 @@ namespace MyBenchmarks
 		public static void Main(string[] args)
 		{
 			HashSet<string> argsSet = new HashSet<string>(args);
-			if (argsSet.Contains("hashing"))
-			{
-				var summary = BenchmarkRunner.Run<HashingBenchmark>();
-			}
 			if (argsSet.Contains("toggler"))
 			{
 				var summary = BenchmarkRunner.Run<BenchmarkToogling>();

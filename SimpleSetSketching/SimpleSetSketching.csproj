@@ -16,6 +16,7 @@
 		<PackageReference Include="System.Data.HashFunction.MurmurHash" Version="2.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\FlashHash\FlashHash\FlashHash.csproj" />
 		<ProjectReference Include="..\..\LittleSharp\LittleSharp\LittleSharp.csproj" />
 	</ItemGroup>
 	<ItemGroup>

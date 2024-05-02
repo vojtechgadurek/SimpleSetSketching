@@ -1,4 +1,5 @@
-﻿using SimpleSetSketching.Testing;
+﻿using FlashHash.SchemesAndFamilies;
+using SimpleSetSketching.Testing;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,7 +9,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using static SimpleSetSketching.Hashing.HashingFunctionProvider;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tests
@@ -30,7 +30,7 @@ namespace Tests
 		public TestDecoderFactory<ulong[], SimpleSetDecoder<ulong[]>> GetSimpleDecodingFactory(int tableSize)
 		{
 			return GetBaseTestingConfiguration()
-				.SetHashingFunctionFactory((size) => ModuloHashingFunctionGenerator.Create((ulong)size, new Random()))
+				.SetHashingFunctionFactory((size) => new ModuloFamily().GetScheme((ulong)size).Create())
 				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
 				.SetNumberOfHashingFunctions(1)
 				.Build(tableSize);
@@ -96,14 +96,13 @@ namespace Tests
 		}
 
 		[Theory]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
-		public void TestDifferentHashingFunction(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		[InlineData(typeof(MultiplyShiftFamily))]
+		[InlineData(typeof(LinearCongruenceFamily))]
+		public void TestDifferentHashingFunction(Type hashingFunctionKind)
 		{
-
 			var factory = GetBaseTestingConfiguration()
 				.SetHashingFunctionFactory((size) =>
-				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+					HashingFunctionProvider.Get(hashingFunctionKind, (ulong)size).Create())
 				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
 				.SetNumberOfHashingFunctions(1)
 				.SetSizeOfBuffer(1024)
@@ -117,13 +116,13 @@ namespace Tests
 		}
 
 		[Theory]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
-		public void TestSSSAlgorithm(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		[InlineData(typeof(MultiplyShiftFamily))]
+		[InlineData(typeof(LinearCongruenceFamily))]
+		public void TestSSSAlgorithm(Type hashingFunctionKind)
 		{
 			var factory = GetBaseTestingConfiguration()
 				.SetHashingFunctionFactory((size) =>
-				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+				HashingFunctionProvider.Get(hashingFunctionKind, (ulong)size).Create())
 				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
 				.SetNumberOfHashingFunctions(3)
 				.SetSizeOfBuffer(1024)
@@ -137,13 +136,14 @@ namespace Tests
 		}
 
 		[Theory]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.MultiplyShift)]
-		[InlineData(HashingFunctionProvider.HashingFunctionKind.LinearCongruence)]
-		public void TestSSSAlgorithm5(HashingFunctionProvider.HashingFunctionKind hashingFunctionKind)
+		[InlineData(typeof(MultiplyShiftFamily))]
+		[InlineData(typeof(LinearCongruenceFamily))]
+		public void TestSSSAlgorithm5(Type hashingFunctionKind)
 		{
 			var factory = GetBaseTestingConfiguration()
-				.SetHashingFunctionFactory((size) =>
-				HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+				.SetHashingFunctionFactory(
+					(size) => HashingFunctionProvider.Get(hashingFunctionKind, (ulong)size).Create()
+				)
 				.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
 				.SetNumberOfHashingFunctions(2)
 				.SetSizeOfBuffer(1024)
@@ -182,14 +182,15 @@ namespace Tests
 
 		public void TestSSSAlgorithmMessStability()
 		{
-			var hashingFunctionKind = HashingFunctionProvider.HashingFunctionKind.MultiplyShift;
+			var hashingFunctionKind = typeof(MultiplyShiftFamily);
 
 			var pipe = GetFullness().Select(
 				fullness => ((double)fullness[0],
 				new OptimalMultiplierToDataFinder<ulong[], SimpleSetDecoder<ulong[]>>(
 					GetBaseTestingConfiguration()
-					.SetHashingFunctionFactory((size) =>
-					HashingFunctionProvider.GetHashingFunction(hashingFunctionKind, (ulong)size))
+					.SetHashingFunctionFactory(
+						(size) => HashingFunctionProvider.Get(hashingFunctionKind, (ulong)size).Create()
+						)
 					.SetDecoderFactory((table, size, hashingFunctions, toggle) => new SimpleSetDecoder<ulong[]>(hashingFunctions, table, size, toggle))
 					.SetNumberOfHashingFunctions(3)
 					.SetTableFactory((size) => GetTableWithRandomMess(size, ((double)fullness[0])))

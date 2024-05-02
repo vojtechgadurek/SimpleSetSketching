@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using SimpleSetSketching.Hashing;
 using SimpleSetSketching.StreamProviders;
 using System;
 using System.Collections.Generic;

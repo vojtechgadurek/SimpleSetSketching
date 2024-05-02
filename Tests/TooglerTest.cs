@@ -34,8 +34,5 @@ namespace Tests
 			var sketch = toggler.ToggleStreamToTable(stream);
 			Assert.Equal(table, sketch);
 		}
-
-		public void
-
 	}
 }

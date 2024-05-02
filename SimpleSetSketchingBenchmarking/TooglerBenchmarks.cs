@@ -10,11 +10,9 @@ using System.Threading.Tasks;
 using SimpleSetSketching.StreamProviders;
 using SimpleSetSketching.Togglers;
 using SimpleSetSketching.Utils;
-using SimpleSetSketching.Hashing;
 using SimpleSetSketching.Sketchers;
 using SimpleSetSketching.InvertibleBloomLookupTable.Tables;
 
-using HashingFunctionKind = SimpleSetSketching.Hashing.HashingFunctionProvider.HashingFunctionKind;
 using System.Linq.Expressions;
 using LittleSharp;
 using Microsoft.Diagnostics.Tracing.Parsers.AspNet;
@@ -27,10 +25,9 @@ namespace SimpleSetSketchingBenchmarking
 	{
 
 		[ParamsSource(nameof(HashingFunctionsToTest))]
-		public HashingFunctionProvider.HashingFunctionKind hashingFunction;
+		public Type hashingFunctionFamily;
 
-		public static IEnumerable<HashingFunctionProvider.HashingFunctionKind> HashingFunctionsToTest() =>
-			Enum.GetValues(typeof(HashingFunctionProvider.HashingFunctionKind)).Cast<HashingFunctionProvider.HashingFunctionKind>();
+		public static IEnumerable<Type> HashingFunctionsToTest() => HashingFunctionProvider.GetAllHashingFunctionFamilies();
 
 		public const int Length = 1024;
 		public const int BufferLength = 4096;
@@ -60,7 +57,7 @@ namespace SimpleSetSketchingBenchmarking
 		{
 			var table = new ulong[TableLength];
 
-			var hashFunction = HashingFunctionProvider.GetHashingFunction(hashingFunction, TableLength);
+			var hashFunction = HashingFunctionProvider.Get(hashingFunctionFamily, TableLength).Create();
 
 			var toggler = new Toggler<ulong[]>(BufferLength, table, new[] { hashFunction }, SimpleSetSketchFunc.GetXorToggle<ulong[]>());
 
@@ -73,7 +70,7 @@ namespace SimpleSetSketchingBenchmarking
 		{
 			var table = new BasicHypergraphTable((int)TableLength);
 
-			var hashFunction = HashingFunctionProvider.GetHashingFunction(hashingFunction, TableLength);
+			var hashFunction = HashingFunctionProvider.Get(hashingFunctionFamily, TableLength).Create();
 
 			var toggler = new Toggler<BasicHypergraphTable>(BufferLength, table, new[] { hashFunction }, BasicHypergraphTable.GetTogglingAction());
 
